@@ -2,8 +2,10 @@ const { sequelize } = require('../models/index.js');
 const moment = require('moment'); // For date formatting
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const localForage = require('localforage');
 const config = require('../config/config.js')
+// const localForage = require('localforage');
+
+
 
 /*----------------------------------------------------------------
 | @route     |    GET  -  POST  -  PUT  -  DELETE
@@ -22,9 +24,9 @@ const store = async (req, res) => {
   try {
     const param = req.body;
 
-    let check_user_existence = `SELECT * FROM users WHERE email = :email`;
+    let check_user_existence = `SELECT * FROM users WHERE email = $email`;
     const [users] = await sequelize.query(check_user_existence, {
-      replacements: { email: param.email },
+      bind: { email: param.email },
       type: sequelize.QueryTypes.SELECT,
     });
 
@@ -42,19 +44,19 @@ const store = async (req, res) => {
     let query = `INSERT INTO users (
       id_rol, username, password, email, nohp, created_at, updated_at, last_login
     ) VALUES (
-      :id_rol, :username, :password, :email, :nohp, :created_at, :updated_at, :last_login
+      $id_rol, $username, $password, $email, $nohp, $created_at, $updated_at, $last_login
     )`;
 
     const [result_id] = await sequelize.query(query, {
-      replacements: {
+      bind: {
         id_rol: param.id_rol,
         username: param.username,
         password: hashedPassword, // Use the hashed password here
         email: param.email,
         nohp: param.nohp,
         created_at: createdAt,
-        updated_at: updatedAt,
-        last_login: lastLogin,
+        updated_at: null,
+        last_login: null,
       },
     });
 
@@ -65,8 +67,8 @@ const store = async (req, res) => {
         id: result_id,
         ...param,
         created_at: createdAt,
-        updated_at: updatedAt,
-        last_login: lastLogin,
+        updated_at: null,
+        last_login: null,
       },
     });
   } catch (err) {
@@ -81,25 +83,56 @@ const store = async (req, res) => {
   }
 };
 
-// @route     GET /api/users/
-// @desc      Get All Users
-// @access    Private
+// @route     GET api/users?keyword=&limit=5&offset=0
+// @desc      Get aksjdhfkasdjhfkasjdhfkasjdhf
+// @access    Public
 const get = async (req, res) => {
   try {
-    let query = 'SELECT * FROM users';
-    //
-    const [users] = await sequelize.query(query);
+    const param = req.query;
+    let keyword = param?.keyword || ``;
+    let limit = parseInt(param?.limit) || 5;
+    let offset = parseInt(param?.offset) || 0;
 
-    res.status(200).json({
+    let query = `SELECT * FROM users`;
+
+    if (keyword.length > 0) {
+      query += ` 
+        WHERE 
+          username LIKE '%${keyword}%' OR
+          nohp LIKE '%${keyword}%' OR
+          email LIKE '%${keyword}%'
+      `;
+    }
+
+    if (limit > 0) {
+      query += " LIMIT " + limit;
+    }
+
+    if (offset >= 0) {
+      query += " OFFSET " + offset;
+    }
+
+    const [rows] = await sequelize.query(query);
+    
+
+    const count = rows.length;
+    const data = {
+      total_row: count,
+      limit: limit,
+      offset: offset,
+      rows: rows,
+    };
+
+    res.status(201).json({
       status: true,
-      message: 'GET DATA Users',
-      data: users,
+      message: "GET DATA users",
+      data: data,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       status: false,
-      // message: err.message,
+      message: err.message,
+      data: [],
     });
   }
 };
@@ -111,12 +144,13 @@ const getById = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    let query = `SELECT * FROM users WHERE id_users = $id_users`;
-    const [users] = await sequelize.query(query, {
-      bind : {
-        id_users : userId
-      }
-    });
+    let query = `SELECT * FROM users WHERE id_users = $id_user`;
+    const [users] = await sequelize.query(query, {  
+      bind: { 
+      id_user : userId
+    }
+      });
+  
 
     if (users.length > 0) {
       res.status(200).json({
@@ -147,14 +181,39 @@ const getById = async (req, res) => {
 // @access    Private
 const update = async (req, res) => {
   try {
-    const userId = req.params.id
+    const userId  = req.params.id;
+
+    // let query = `SELECT * FROM users WHERE id_users = :iduser`;
+    // const [user] = await sequelize.query(query, {
+    //   replacements: { iduser: userId }
+    // });
 
     // Hash password using bcrypt
     const hashedPassword = await bcrypt.hash(req.body?.password, 10);
+    const updateat = moment().format('YYYY-MM-DD HH:mm:ss');
+      
+    // let query = `SELECT * FROM ${targetTable} WHERE ${targetColumn} = :idrole`;
+    // const result = await sequelize.query(query, {
+    //   replacements: { idrole: parseInt(_ID) }
+    // });
 
     if (userId) {
-      const query = `UPDATE users SET id_rol = ${req.body?.id_rol}, username = '${req.body?.username}', password = '${hashedPassword}', email = '${req.body?.email}' WHERE id_users = ${userId}`;
-      const [result] = await sequelize.query(query);
+      const query = `UPDATE users SET id_rol = $idrole, 
+      username = $userName, 
+      password = $pass, 
+      email = $email,
+      updated_at = $updateAt
+      WHERE id_users = ${parseInt(userId)}`;
+      
+      const [result] = await sequelize.query(query, {
+        bind: {
+          idrole: req.body?.id_rol,
+          userName: req.body?.username,
+          pass: req.body?.password,
+          email: req.body?.email,
+          updateAt: updateat
+        }
+      });
 
       if (result.affectedRows > 0) {
         res.status(200).json({
@@ -183,14 +242,15 @@ const update = async (req, res) => {
       message: validationError?.sqlMessage || err.message,
     });
   }
-};
+}
+
 
 // @route     DELETE /api/users/:id
 // @desc      Delete Single User
 // @access    Private
 const destroy = async (req, res) => {
   try {
-    const userId = req.params.id
+    const userId  = req.params.id;
 
     if (userId) {
       const query = `DELETE FROM users WHERE id_users = ${userId}`;
@@ -224,175 +284,16 @@ const destroy = async (req, res) => {
   }
 };
 
-// -----------------------------------------------------------------------------------------------
-// @route     POST /api/users/login
-// @desc      Login New user
-// @access    Public
-const login = async (req, res) => {
-  // const { username, password } = req.body;
-
-  try {
-    // const query = `SELECT * FROM users WHERE username = :username`
-    let query = `SELECT * FROM users WHERE username = :username`;
-
-    const [user] = await sequelize.query(query, {
-      replacements: { username: req.body?.username },
-      type: sequelize.QueryTypes.SELECT,
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        status: false,
-        message: 'Invalid username or password',
-      });
-    }
-
-    // const user = users[0];
-
-    const passwordMatch = await bcrypt.compare(
-      req.body?.password,
-      user.password
-    );
-
-    if (passwordMatch) {
-      const token = jwt.sign({ id: user.id_users }, config.env.JWT_SECRET_KEY, {
-        expiresIn: '30d',
-      });
-
-      // save to cookie
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        secure: config.env.NODE_ENV !== 'development',
-        sameSite: 'strict',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      });
-
-      // save to localstorage
-      try {
-      localforage.setItem('token', token);
-      } catch (error) {
-        console.log(error);
-      }
-
-      res.status(200).json({
-        status: true,
-        message: 'Login successful',
-        token,
-        user: {
-          idrol: user.id_rol,
-          username: user.username,
-          email: user.email,
-        },
-      });
-    } else {
-      res.status(401).json({
-        status: false,
-        message: 'Invalid username or password',
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: false,
-      message: 'An error occurred while logging in',
-    });
-  }
-};
-
-//access role
-// Rute yang hanya bisa diakses oleh admin
-const adminRoute = async (req, res) => {
-  try {
-    const query = `
-      SELECT * FROM users
-      INNER JOIN role ON users.id_rol = role.id_rol
-      WHERE users.id_users = :userId AND role.nama_role = 'admin'
-    `;
-    const [user] = await sequelize.query(query, {
-      replacements: { userId: req.user.id },
-      type: sequelize.QueryTypes.SELECT,
-    });
-
-    if (!user) {
-      return res.status(403).json({
-        status: false,
-        message: 'Unauthorized',
-      });
-    }
-
-    res.status(200).json({
-      status: true,
-      message: 'Admin protected route accessed successfully',
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: false,
-      message: 'An error occurred while accessing admin protected route',
-    });
-  }
-};
-
-const cashierRoute = async (req, res) => {
-  try {
-    const query = `
-      SELECT * FROM users
-      INNER JOIN role ON users.id_rol = role.id_rol
-      WHERE users.id_users = :userId AND (role.nama_role = 'admin' OR role.nama_role = 'cashier')
-    `;
-    const [user] = await sequelize.query(query, {
-      replacements: { userId: req.user.id },
-      type: sequelize.QueryTypes.SELECT,
-    });
-
-    if (!user) {
-      return res.status(403).json({
-        status: false,
-        message: 'Unauthorized',
-      });
-    }
-
-    res.status(200).json({
-      status: true,
-      message: 'User protected route accessed successfully',
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: false,
-      message: 'An error occurred while accessing user protected route',
-    });
-  }
-};
-
-// @route     POST /api/users/logout/
-// @desc      Logout user
-// @access    Private
-const logout = async (req, res) => {
-  try {
-    res.cookie('jwt', '', {
-      httpOnly: true,
-      expires: new Date(0),
-    });
-
-    res.status(200).json({ message: 'USER LOGGED OUT' });
-  } catch (error) {
-    res.status(400).json({
-      status: false,
-      message: 'USER FAILED LOGING OUT',
-      error,
-    });
-  }
-};
 
 module.exports = {
   get,
-  adminRoute,
-  cashierRoute,
-  login,
+  // getByIdRole,
   getById,
   store,
+  // storeRole,
   update,
-  destroy,
-  logout,
-};
+  // deleteRole,
+  // updateRole,
+  destroy
+  // showRole
+}
