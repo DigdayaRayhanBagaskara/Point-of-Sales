@@ -2,27 +2,32 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 
+const authRouter = require("./auth.route");
+const roleRouter = require("./role.route.js");
 const usersRouter = require("./users.route.js");
 const produkRouter = require("./produk.route.js");
 const discountRouter = require("./discount.route.js");
 const promoRouter = require("./promo.route.js");
 const brand_produkRouter = require("./brand_produk.route.js");
 const categoriesRouter = require("./categories.route.js");
-// const employeeRouter = require("./employee.route.js");
-// const employee_accessRouter = require("./employee_access.route.js");
+const employeeRouter = require("./employee.route.js");
+const employee_accessRouter = require("./employee_access.route.js");
 const transaksiRouter = require("./transaksi.route.js");
 // const variantRouter = require("./variant.route.js");
-const salesTransaction = require("./sales_transaction.route.js");
 
+router.use("/auth", authRouter);
+router.use("/role", roleRouter);
 router.use("/users", usersRouter);
 router.use("/produk", produkRouter);
 router.use("/discount", discountRouter);
 router.use("/brand-produk", brand_produkRouter);
 router.use("/categories", categoriesRouter);
-// router.use("/employee", employeeRouter);
-// router.use("/employee-access", employee_accessRouter);
+router.use("/employee", employeeRouter);
+router.use("/employee-access", employee_accessRouter);
 router.use("/promo", promoRouter);
 router.use("/transaksi", transaksiRouter);
 // router.use("/variant", variantRouter);
-router.use("/sales-transaction", salesTransaction);
+
 module.exports = router;
+
+
