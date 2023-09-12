@@ -133,7 +133,7 @@ const Brandproduct = () => {
     dispatch(setCurrentPage(page));
     setParams({ ...params, offset: (page - 1) * params.limit }); // Update the offset based on the new page
   };
-  const counts = useGetListbrandQuery().data?.data?.count;
+  const counts = useGetListbrandQuery().data?.data?.total_row;
   const totalPages = Math.ceil(counts / params.limit);
 
   return (
