@@ -15,10 +15,11 @@ import {
 } from "@heroicons/react/24/solid";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useGetListvariantQuery } from "../../../redux/services/variantproductApi";
+import { useGetListproductQuery } from "../../../redux/services/productApi";
 import Table from "../../../components/Table";
 import Formcategory from "./Formvariant";
 import EditVariant from "./EditVariant";
+import Detail from "./Detail";
 import Pagination from "../../../components/Pagination";
 
 import Delete from "./Delete";
@@ -31,6 +32,7 @@ const Varianproduct = () => {
   const dispatch = useDispatch();
   const [isFormOpen, setFormOpen] = useState(false);
   const [EdFormOpen, setEdFormOpen] = useState(null);
+  const [DFormOpen, setDFormOpen] = useState(null);
   const [DeleteOpen, setDeleteOpen] = useState(null);
   const [refreshData, setRefreshData] = useState(false);
   const [isDataFound, setDataFound] = useState(true);
@@ -43,7 +45,7 @@ const Varianproduct = () => {
     offset: 0,
     searchTerm: "",
   });
-  const variantQuery = useGetListvariantQuery({
+  const variantQuery = useGetListproductQuery({
     keyword: params.keyword,
     limit: params.limit,
     offset: params.offset,
@@ -76,44 +78,44 @@ const Varianproduct = () => {
   function formatAmount(amount) {
     return amount.toLocaleString("id-ID");
   }
+
   // Data Head
   const TABLE_HEAD = [
     {
-      name: "ID VARIANT",
-      cell: (row) => row.id_produk_variant,
+      name: "ID PRODUK",
+      cell: (row) => row.id_produk,
     },
     {
-      name: "VARIANT",
-      cell: (row) => row.variant_name,
-    },
-    {
-      name: "HARGA PRODUK",
-      cell: (row) => "Rp " + formatAmount(row.harga_produk),
-    },
-    {
-      name: "HARGA MODAL",
-      cell: (row) => "Rp " + formatAmount(row.harga_modal),
+      name: "GAMBAR PRODUK",
+      cell: (row) => row.gambar_produk,
     },
     {
       name: "PRODUK",
       cell: (row) => row.produk_name,
     },
     {
-      name: "SKU",
-      cell: (row) => row.sku,
+      name: "OUTLET",
+      cell: (row) => row.outlet.nama_outlet,
     },
     {
-      name: "STOK",
-      cell: (row) => row.stok + " " + "Pcs",
+      name: "KATEGORI",
+      cell: (row) => row.produk_categories.categories_name,
     },
     {
-      name: "MINIMAL STOK",
-      cell: (row) => row.min_stok + " " + "Pcs",
+      name: "BRAND",
+      cell: (row) => row.brands_produk.brand_name,
+    },
+    {
+      name: "DESKRIPSI",
+      cell: (row) => row.description,
     },
     {
       name: "ACTION",
       cell: (row) => (
         <div className="flex gap-4 justify-center items-center">
+          <Button onClick={() => openDForm(row)} color="cyan">
+            Detail
+          </Button>
           <Button onClick={() => openEForm(row)} color="blue">
             Edit
           </Button>
@@ -131,7 +133,12 @@ const Varianproduct = () => {
   const openEForm = (row) => {
     setEdFormOpen(row);
   };
-
+  const openDForm = (row) => {
+    setDFormOpen(row);
+  };
+  const closeDForm = () => {
+    setDFormOpen(null);
+  };
   const closeForm = () => {
     setFormOpen(false);
   };
@@ -151,7 +158,6 @@ const Varianproduct = () => {
   };
   const counts = useGetListproductQuery().data?.data?.total_row;
   const totalPages = Math.ceil(counts / params.limit);
-
   return (
     <>
       <div className="ml-2 pt-5s mx-auto mb-auto h-full min-h-[70vh] p-2 md:pr-2">
@@ -160,7 +166,7 @@ const Varianproduct = () => {
             <div className="mb-8 flex items-center justify-between gap-8">
               <div>
                 <Typography variant="h5" color="blue-gray">
-                  Data variant
+                  Data Produk
                 </Typography>
               </div>
               <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
@@ -246,6 +252,12 @@ const Varianproduct = () => {
               </CardBody>
             </Card>
           </div>
+        </div>
+      )}
+      {/* FOrm Detail */}
+      {DFormOpen && (
+        <div className="fixed inset-0 items-center justify-center bg-black bg-opacity-50">
+          <Detail openDForm={DFormOpen} closeDForm={() => setDFormOpen(null)} />
         </div>
       )}
     </>

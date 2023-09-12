@@ -5,15 +5,15 @@ import PropTypes from "prop-types";
 import { Typography, Input, Button } from "@material-tailwind/react";
 
 // Import Delete
-import { useDeletevariantByIdMutation } from "../../../redux/services/variantproductApi";
-import { deletevariant } from "../../../redux/features/counter/variantSlice";
+import { useDeleteproductByIdMutation } from "../../../redux/services/productApi";
+
 import { useDispatch } from "react-redux";
 
 // Import Notifikasi
 import { toast } from "react-toastify";
 
 const Delete = ({ DeleteOpened, DeleteClose, onEdit }) => {
-  const [deleteCates] = useDeletevariantByIdMutation();
+  const [deleteCates] = useDeleteproductByIdMutation();
   const [password, setPassword] = useState("");
   const [showPasswordError, setShowPasswordError] = useState(false);
   const dispatch = useDispatch();
@@ -25,9 +25,9 @@ const Delete = ({ DeleteOpened, DeleteClose, onEdit }) => {
   const handleDelete = async () => {
     if (password === "qqq") {
       try {
-        const variantIdToDelete = DeleteOpened.id_produk_variant; // Use DeleteOpen directly
-        await deleteCates({ id_produk_variant: variantIdToDelete });
-        dispatch(deletevariant(variantIdToDelete));
+        const variantIdToDelete = DeleteOpened.id_produk; // Use DeleteOpen directly
+        await deleteCates({ id_produk: variantIdToDelete });
+
         toast.success("Data Berhasil Dihapus");
 
         onEdit();
