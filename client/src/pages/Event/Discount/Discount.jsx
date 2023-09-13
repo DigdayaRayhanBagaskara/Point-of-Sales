@@ -190,12 +190,8 @@ const Discount = () => {
             </div>
           )}
           {/* Pagination */}
-          <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
-            <Pagination
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </CardFooter>
+
+          <Pagination totalPages={totalPages} onPageChange={handlePageChange} />
         </Card>
       </div>
       {/* Form Add */}
