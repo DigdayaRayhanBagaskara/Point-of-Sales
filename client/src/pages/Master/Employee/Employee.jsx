@@ -73,7 +73,7 @@ const Employee = () => {
     },
     {
       name: "Outlet",
-      cell: (row) => listOutlet[listOutlet.findIndex((value) => value.id_outlet === row.id_outlet)].nama_outlet,
+      cell: (row) => listOutlet[listOutlet.findIndex((value) => value.id_outlet === row.id_outlet)]?.nama_outlet,
     },
     {
       name: "Action ",
