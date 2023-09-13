@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   Typography,
@@ -18,14 +18,25 @@ import {
 } from "@heroicons/react/24/solid";
 
 import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import Logout from "../pages/Auth/Logout";
 
 const SideBar = () => {
+  const navigate = useNavigate()
   const [open, setOpen] = React.useState(0);
+  const [showModalLogout, setShowModalLogout] = useState(false)
 
   const handleOpen = (value) => {
     setOpen(open === value ? 0 : value);
   };
+
+  const openModal = () => {
+    setShowModalLogout(true)
+  }
+  const closeModal = () => {
+    setShowModalLogout(false)
+  }
+
   return (
     <>
       <Card className=" w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
@@ -36,14 +47,14 @@ const SideBar = () => {
         </div>
         <List>
           {/* Dashboard */}
-          <ListItem>
-            <ListItemPrefix>
-              <PresentationChartBarIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            <NavLink to="dashboard" className="flex items-center">
+          <NavLink to="dashboard" className="flex items-center">
+            <ListItem>
+              <ListItemPrefix>
+                <PresentationChartBarIcon className="h-5 w-5" />
+              </ListItemPrefix>
               Dashboard
-            </NavLink>
-          </ListItem>
+            </ListItem>
+          </NavLink>
 
           <hr className="my-2 border-blue-gray-50" />
 
@@ -53,9 +64,8 @@ const SideBar = () => {
             icon={
               <ChevronDownIcon
                 strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 1 ? "rotate-180" : ""
-                }`}
+                className={`mx-auto h-4 w-4 transition-transform ${open === 1 ? "rotate-180" : ""
+                  }`}
               />
             }
           >
@@ -74,22 +84,22 @@ const SideBar = () => {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="employee" className="flex items-center">
+                <NavLink to="employee" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Employee
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="users" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="users" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Users
-                  </NavLink>
-                </ListItem>
+                  </ListItem>
+                </NavLink>
               </List>
             </AccordionBody>
           </Accordion>
@@ -100,9 +110,8 @@ const SideBar = () => {
             icon={
               <ChevronDownIcon
                 strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 2 ? "rotate-180" : ""
-                }`}
+                className={`mx-auto h-4 w-4 transition-transform ${open === 2 ? "rotate-180" : ""
+                  }`}
               />
             }
           >
@@ -121,22 +130,22 @@ const SideBar = () => {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="discount" className="flex items-center">
+                <NavLink to="discount" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Discount
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="promo" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="promo" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Promo
-                  </NavLink>
-                </ListItem>
+                  </ListItem>
+                </NavLink>
               </List>
             </AccordionBody>
           </Accordion>
@@ -147,9 +156,8 @@ const SideBar = () => {
             icon={
               <ChevronDownIcon
                 strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 4 ? "rotate-180" : ""
-                }`}
+                className={`mx-auto h-4 w-4 transition-transform ${open === 4 ? "rotate-180" : ""
+                  }`}
               />
             }
           >
@@ -168,30 +176,30 @@ const SideBar = () => {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="brand-produk" className="flex items-center">
+                <NavLink to="brand-produk" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Brand Product
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="categories" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="categories" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Category Product
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="variant" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="variant" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={7} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Product & Product Variant
-                  </NavLink>
-                </ListItem>
+                  </ListItem>
+                </NavLink>
               </List>
             </AccordionBody>
           </Accordion>
@@ -202,9 +210,8 @@ const SideBar = () => {
             icon={
               <ChevronDownIcon
                 strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 5 ? "rotate-180" : ""
-                }`}
+                className={`mx-auto h-4 w-4 transition-transform ${open === 5 ? "rotate-180" : ""
+                  }`}
               />
             }
           >
@@ -223,49 +230,49 @@ const SideBar = () => {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink
-                    to="log-management-report"
-                    className="flex items-center"
-                  >
+                <NavLink
+                  to="log-management-report"
+                  className="flex items-center"
+                >
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Log Management Report
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="sales-report" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="sales-report" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Sales Report
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink
-                    to="transaction-report"
-                    className="flex items-center"
-                  >
+                  </ListItem>
+                </NavLink>
+                <NavLink
+                  to="transaction-report"
+                  className="flex items-center"
+                >
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Transaction Report
-                  </NavLink>
-                </ListItem>
+                  </ListItem>
+                </NavLink>
               </List>
             </AccordionBody>
           </Accordion>
 
           {/* Roles */}
-          <ListItem>
-            <ListItemPrefix>
-              <PresentationChartBarIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            <NavLink to="roles" className="flex items-center">
+          <NavLink to="roles" className="flex items-center">
+            <ListItem>
+              <ListItemPrefix>
+                <PresentationChartBarIcon className="h-5 w-5" />
+              </ListItemPrefix>
               Roles
-            </NavLink>
-          </ListItem>
+            </ListItem>
+          </NavLink>
 
           {/* Transaction */}
           <Accordion
@@ -273,9 +280,8 @@ const SideBar = () => {
             icon={
               <ChevronDownIcon
                 strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 6 ? "rotate-180" : ""
-                }`}
+                className={`mx-auto h-4 w-4 transition-transform ${open === 6 ? "rotate-180" : ""
+                  }`}
               />
             }
           >
@@ -294,37 +300,42 @@ const SideBar = () => {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="sales-transaction" className="flex items-center">
+                <NavLink to="sales-transaction" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Sales Transaction
-                  </NavLink>
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  <NavLink to="struk-transaction" className="flex items-center">
+                  </ListItem>
+                </NavLink>
+                <NavLink to="struk-transaction" className="flex items-center">
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     Struk Transaction
-                  </NavLink>
-                </ListItem>
+                  </ListItem>
+                </NavLink>
               </List>
             </AccordionBody>
           </Accordion>
 
           {/* Logout */}
-          <ListItem>
-            <ListItemPrefix>
-              <PowerIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            <NavLink to="login" className="flex items-center">
+          <NavLink onClick={openModal} className="flex items-center">
+            <ListItem>
+              <ListItemPrefix>
+                <PowerIcon className="h-5 w-5" />
+              </ListItemPrefix>
               Log Out
-            </NavLink>
-          </ListItem>
+            </ListItem>
+          </NavLink>
         </List>
       </Card>
+
+      {
+        showModalLogout &&
+        <Logout close={closeModal}/>
+      }
     </>
   );
 };
