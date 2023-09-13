@@ -21,7 +21,8 @@ const get = async (req, res) => {
             id_outlet LIKE $keyword OR
             name LIKE $keyword OR
             agama LIKE $keyword OR
-            status LIKE $keyword 
+            status LIKE $keyword OR
+            alamat LIKE $keyword
         `;
       }
 
@@ -48,7 +49,8 @@ const get = async (req, res) => {
         id_outlet LIKE $keyword OR
         name LIKE $keyword OR
         agama LIKE $keyword OR
-        status LIKE $keyword 
+        status LIKE $keyword OR
+        alamat LIKE $keyword
     `;
       }
       const [count] = await sequelize.query(countQuery, {
@@ -174,6 +176,7 @@ const update = async (req, res) => {
       name = $name, 
       agama = $agama,
       status = $status,
+      alamat = $alamat,
       updated_at = $updateAt
       WHERE id_employee = ${parseInt(employeeId)}`;
       
@@ -183,6 +186,7 @@ const update = async (req, res) => {
           name: req.body?.name,
           agama: req.body?.agama,
           status: req.body?.status,
+          alamat: req.body?.alamat,
           updateAt: updateat
         }
       });
