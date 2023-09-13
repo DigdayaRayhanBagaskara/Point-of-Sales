@@ -12,10 +12,10 @@ const GrossProfit = lazy(() =>
   import("./pages/Report/Salesreport/component/GrossProfit")
 );
 
-const RequireAuth = lazy(() =>
-  import("./pages/Auth/authComponents/RequireAuth")
-);
-const LoginAuth = lazy(() => import("./pages/Auth/authComponents/LoginAuth"));
+// const RequireAuth = lazy(() =>
+//   import("./pages/Auth/authComponents/RequireAuth")
+// );
+// const LoginAuth = lazy(() => import("./pages/Auth/authComponents/LoginAuth"));
 
 const Layout = lazy(() => import("./components/layout/Layout"));
 const LayoutAdmin = lazy(() => import("./components/layout/LayoutAdmin"));
@@ -68,9 +68,9 @@ const App = () => {
       <Suspense>
         <Routes>
           {/* Layout Home */}
-          
-            {/* <Route element={<Layout />}> */}
-            <Route path="/login" element={<Auth />} />
+
+          {/* <Route element={<Layout />}> */}
+          <Route path="/login" element={<Auth />} />
           {/* Layout Super Admin
           <Route element={<LayoutSuperAdmin />}>
             <Route path="" element={<Auth />} />
@@ -90,14 +90,23 @@ const App = () => {
             <Route path="/categories" element={<Categoryproduct />} />
             <Route path="/product-varian" element={<ProdukVarian />} />
             <Route path="/product" element={<Product />} />
-            <Route path="/log-management-report" element={<LogManageReport />} />
+            <Route
+              path="/log-management-report"
+              element={<LogManageReport />}
+            />
             <Route path="/variant" element={<Varian />} />
 
             {/* Sales Report */}
             <Route path="/sales-report" element={<SalesReport />}>
               <Route index element={<SalesSummary />} />
-              <Route path="/sales-report/sales-summary" element={<SalesSummary />} />
-              <Route path="/sales-report/gross-profit" element={<GrossProfit />} />
+              <Route
+                path="/sales-report/sales-summary"
+                element={<SalesSummary />}
+              />
+              <Route
+                path="/sales-report/gross-profit"
+                element={<GrossProfit />}
+              />
             </Route>
 
             <Route path="/transaction-report" element={<TransactionReport />} />
