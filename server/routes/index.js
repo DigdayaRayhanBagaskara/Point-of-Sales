@@ -13,15 +13,8 @@ const categoriesRouter = require("./categories.route.js");
 const employeeRouter = require("./employee.route.js");
 const employee_accessRouter = require("./employee_access.route.js");
 const transaksiRouter = require("./transaksi.route.js");
-<<<<<<< HEAD
 const variantRouter = require("./variant.route.js");
 const outletRouter = require("./outlet.route.js")
-=======
-// const variantRouter = require("./variant.route.js");
-const dashboardRouter = require("./dashboard.route.js");
-const salesReportRouter = require("./sales_report.route.js");
-const transactionReportRouter = require("./transaction_report.route.js");
->>>>>>> 588d48bbd87932eb2d06eca05003da346db0b921
 
 router.use("/auth", authRouter);
 router.use("/roles", roleRouter);
@@ -34,15 +27,8 @@ router.use("/employee", employeeRouter);
 router.use("/employee-access", employee_accessRouter);
 router.use("/promo", promoRouter);
 router.use("/transaksi", transaksiRouter);
-<<<<<<< HEAD
 router.use("/variant", variantRouter);
 router.use("/outlet", outletRouter);
-=======
-// router.use("/variant", variantRouter);
-router.use("/dashboard", dashboardRouter);
-router.use("/sales-report", salesReportRouter);
-router.use("/transaction-report", transactionReportRouter);
->>>>>>> 588d48bbd87932eb2d06eca05003da346db0b921
 
 module.exports = router;
 
