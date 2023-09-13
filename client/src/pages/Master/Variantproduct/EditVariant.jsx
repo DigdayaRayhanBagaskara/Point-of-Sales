@@ -13,8 +13,6 @@ import {
 } from "@material-tailwind/react";
 // import Add data
 import { useUpdateproductByIdMutation } from "../../../redux/services/productApi";
-import { useUpdatevariantByIdMutation } from "../../../redux/services/variantproductApi";
-
 // import List Select
 import { useGetListoutletQuery } from "../../../redux/services/outletApi";
 import { useGetListbrandQuery } from "../../../redux/services/brandproductApi";
@@ -31,14 +29,14 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedOutlet, setSelectedOutlet] = useState([]);
 
-  const [formLoginData, setFormLoginData] = useState({
+  const [editedProduk, setEditedProduk] = useState({
     id_produk: openEForm.id_produk,
     id_categories: openEForm.id_categories,
     id_brand: openEForm.id_brand,
     id_outlet: openEForm.id_outlet,
     produk_name: openEForm.produk_name,
     gambar_produk: openEForm.gambar_produk,
-    desc: openEForm.description,
+    description: openEForm.description,
   });
 
   // List Select
@@ -86,7 +84,7 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
     setSelectedImage(file);
     setImageUrl(newImageUrl);
 
-    setFormLoginData((prevData) => ({
+    setEditedProduk((prevData) => ({
       ...prevData,
       gambar_produk: file,
     }));
@@ -97,94 +95,90 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
       URL.revokeObjectURL(selectedImage);
       setSelectedImage(null);
       setImageUrl(null);
-      setFormLoginData((prevData) => ({
+      setEditedProduk((prevData) => ({
         ...prevData,
         gambar_produk: "",
       }));
     }
   };
   // Form Variant
-
-  const [variants, setVariants] = useState({
+  const [showRemoveButton, setShowRemoveButton] = useState(false);
+  const initialVariant = {
     variant_name: openEForm.variant_name,
     harga_produk: openEForm.harga_produk,
     harga_modal: openEForm.harga_modal,
     sku: openEForm.sku,
     stok: openEForm.stok,
     min_stok: openEForm.min_stok,
-  });
-
-  const handleInputChange = (e) => {
+  };
+  const [variants, setVariants] = useState([initialVariant]);
+  const [showAllFields, setShowAllFields] = useState(false);
+  const handleInputChangeP = (e) => {
     const { name, value } = e.target;
-    setVariants((prevCategory) => ({
-      ...prevCategory,
+    setEditedProduk((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
   };
-  const handleInputChangeP = (e) => {
-    const { name, value } = e.target;
-    setFormLoginData((prevCategory) => ({
-      ...prevCategory,
-      [name]: value,
-    }));
+  const handleInputChangeV = (event, index) => {
+    const { name, value } = event.target;
+    setVariants((prevVariants) => {
+      const updatedVariants = [...prevVariants];
+      updatedVariants[index][name] = value;
+      return updatedVariants;
+    });
+  };
+
+  const handleAddVariant = () => {
+    setVariants([...variants, { ...initialVariant }]);
+    setShowAllFields(true);
+    setShowRemoveButton(true);
+  };
+  const handleRemoveVariant = (index) => {
+    const newVariants = [...variants];
+    newVariants.splice(index, 1);
+    setVariants(newVariants);
+
+    if (newVariants.length === 1) {
+      setShowRemoveButton(false);
+      setShowAllFields(false);
+    }
   };
 
   // Submit
   const [editProduk] = useUpdateproductByIdMutation();
-  const [editVariant] = useUpdatevariantByIdMutation();
-  const updateProduct = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("gambar_produk", formLoginData.gambar_produk);
-      // Mengirim permintaan pembaruan data produk
-      const productUpdateData = {
-        id_produk: openEForm.id_produk,
-        id_categories: formLoginData.id_categories,
-        id_brand: formLoginData.id_brand,
-        id_outlet: formLoginData.id_outlet,
-        produk_name: formLoginData.produk_name,
-        gambar_produk: formData,
-        description: formLoginData.desc,
-      };
 
-      // Gantilah 'editProduk' dengan fungsi API yang sesuai
-      const productResponse = await editProduk(productUpdateData);
-      toast.success("Product updated successfully.");
-    } catch (error) {
-      // Penanganan kesalahan produk
-      console.error("Error updating product:", error);
-      toast.error("An error occurred while updating the product.");
-    }
-  };
-
-  const updateVariant = async () => {
-    try {
-      // Mengirim permintaan pembaruan data variant
-      const variantUpdateData = {
-        id_produk_variant: openEForm.id_produk_variant,
-        variant_name: variants.variant_name,
-        harga_produk: variants.harga_produk,
-        harga_modal: variants.harga_modal,
-        sku: variants.sku,
-        stok: variants.stok,
-        min_stok: variants.min_stok,
-      };
-
-      // Gantilah 'editVariant' dengan fungsi API yang sesuai
-      const variantResponse = await editVariant(variantUpdateData);
-      toast.success("Variant updated successfully.");
-    } catch (error) {
-      // Penanganan kesalahan variant
-      console.error("Error updating variant:", error);
-      toast.error("An error occurred while updating the variant.");
-    }
-  };
   const submitHandler = async () => {
     try {
-      await updateProduct();
-      await updateVariant();
+      const formData = new FormData();
+      formData.append("id_categories", editedProduk.id_categories);
+      formData.append("id_brand", editedProduk.id_brand);
+      formData.append("id_outlet", editedProduk.id_outlet);
+      formData.append("produk_name", editedProduk.produk_name);
+      formData.append("description", editedProduk.description);
+      formData.append("gambar_produk", editedProduk.gambar_produk);
+
+      variants.forEach((variant, index) => {
+        formData.append(
+          `variants[${index}][variant_name]`,
+          variant.variant_name || editedProduk.produk_name
+        );
+        formData.append(
+          `variants[${index}][harga_produk]`,
+          variant.harga_produk
+        );
+        formData.append(`variants[${index}][harga_modal]`, variant.harga_modal);
+        formData.append(`variants[${index}][sku]`, variant.sku);
+        formData.append(`variants[${index}][stok]`, variant.stok);
+        formData.append(`variants[${index}][min_stok]`, variant.min_stok);
+      });
+
+      const response = await editProduk(formData);
+
       onEdit();
-      setFormLoginData({
+      toast.success("Data Berhasil Disimpan");
+      // Reset form data setelah berhasil menyimpan
+      setEditedProduk({
         id_categories: "",
         id_brand: "",
         id_outlet: "",
@@ -202,9 +196,7 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
       });
       closeEForm();
     } catch (error) {
-      // Penanganan kesalahan umum
-      console.error("Error:", error);
-      toast.error("An error occurred.");
+      console.error("Error while saving category:", error);
     }
   };
 
@@ -219,7 +211,7 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
             className="m-0 rounded-b-none py-7 px-4 text-left bg-black"
           >
             <Typography variant="h4" color="white" className="ml-2">
-              Add Data Product
+              Edit Data Product
             </Typography>
           </CardHeader>
 
@@ -275,22 +267,28 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
                     <input
                       type="file"
                       accept="image/*"
+                      name="gambar_produk"
                       onChange={handleImageUpload}
                       className="hidden"
                       id="upload-input"
                     />
                   </div>
                 </div>
+
                 <Input
                   label="Produk"
+                  id="produk_name"
+                  name="produk_name"
                   type="text"
-                  value={formLoginData.produk_name}
+                  value={editedProduk.produk_name}
                   onChange={handleInputChangeP}
                 />
                 <Textarea
                   label="Dekripsi"
                   type="text"
-                  value={formLoginData.desc}
+                  id="description"
+                  name="description"
+                  value={editedProduk.description}
                   onChange={handleInputChangeP}
                 />
               </form>
@@ -302,8 +300,9 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
                   <label className="text-sm font-medium">Outlet</label>
                   <select
                     id="id_outlet"
+                    name="id_outlet"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
-                    value={formLoginData.id_outlet}
+                    value={editedProduk.id_outlet}
                     onChange={handleInputChangeP}
                   >
                     <option value="">Pilih Outlet</option>
@@ -325,8 +324,9 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
                   <label className="text-sm font-medium">Kategori</label>
                   <select
                     id="id_categories"
+                    name="id_categories"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
-                    value={formLoginData.id_categories}
+                    value={editedProduk.id_categories}
                     onChange={handleInputChangeP}
                   >
                     <option value="">Pilih Kategori</option>
@@ -348,8 +348,9 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
                 <div className="flex flex-col">
                   <label className="text-sm font-medium">Brand</label>
                   <select
-                    id="id_brands_produk"
-                    value={formLoginData.id_brand}
+                    id="id_brand"
+                    name="id_brand"
+                    value={editedProduk.id_brand}
                     onChange={handleInputChangeP}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
                   >
@@ -375,51 +376,91 @@ const EditVariant = ({ closeEForm, openEForm, onEdit }) => {
           {/* Form Penerima Penambahan Variant */}
           <CardBody className="flex flex-col">
             <div className="overflow-x-auto  max-h-[20vh]">
-              <div className="flex  grid-cols-7 gap-4 md:gap-4 md:w-auto p-4">
-                <Input
-                  label="Variant"
-                  type="text"
-                  name="variant_name"
-                  value={variants.variant_name}
-                  onChange={handleInputChange}
-                />
-
-                <Input
-                  label="Harga Produk"
-                  type="number"
-                  name="harga_produk"
-                  value={variants.harga_produk}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Harga Modal"
-                  type="number"
-                  name="harga_modal"
-                  value={variants.harga_modal}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="SKU"
-                  type="text"
-                  name="sku"
-                  value={variants.sku}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Stok"
-                  type="number"
-                  name="stok"
-                  value={variants.stok}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Min Stok"
-                  type="number"
-                  name="min_stok"
-                  value={variants.min_stok}
-                  onChange={handleInputChange}
-                />
-              </div>
+              {variants.map((variants, index) => (
+                <div
+                  key={index}
+                  className="flex  grid-cols-7 gap-4 md:gap-4 md:w-auto p-4"
+                >
+                  {showAllFields && (
+                    <Input
+                      label="Variant"
+                      type="text"
+                      name="variant_name"
+                      value={variants.variant_name}
+                      onChange={(event) => handleInputChangeV(event, index)}
+                    />
+                  )}
+                  <Input
+                    label="Harga Produk"
+                    type="number"
+                    name="harga_produk"
+                    value={variants.harga_produk}
+                    onChange={(event) => handleInputChangeV(event, index)}
+                  />
+                  <Input
+                    label="Harga Modal"
+                    type="number"
+                    name="harga_modal"
+                    value={variants.harga_modal}
+                    onChange={(event) => handleInputChangeV(event, index)}
+                  />
+                  <Input
+                    label="SKU"
+                    type="text"
+                    name="sku"
+                    value={variants.sku}
+                    onChange={(event) => handleInputChangeV(event, index)}
+                  />
+                  <Input
+                    label="Stok"
+                    type="number"
+                    name="stok"
+                    value={variants.stok}
+                    onChange={(event) => handleInputChangeV(event, index)}
+                  />
+                  <Input
+                    label="Min Stok"
+                    type="number"
+                    name="min_stok"
+                    value={variants.min_stok}
+                    onChange={(event) => handleInputChangeV(event, index)}
+                  />
+                  {showRemoveButton && (
+                    <div className="col-span-1 pl-2">
+                      <Button
+                        type="button"
+                        onClick={() => handleRemoveVariant(index)}
+                        className=" bg-red-600 text-white px-4 py-3 rounded-md shadow-md hover:bg-red-800"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="h-4 w-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-start p-4">
+              <Button
+                size="md"
+                type="button"
+                className="bg-black text-white px-5 py-3 rounded-md shadow-md hover:bg-blue-600"
+                onClick={handleAddVariant}
+              >
+                Add Variant
+              </Button>
             </div>
           </CardBody>
           {/* Footer */}

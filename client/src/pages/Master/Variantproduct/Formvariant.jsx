@@ -13,9 +13,7 @@ import {
 } from "@material-tailwind/react";
 // import Add data
 import { useAddproductMutation } from "../../../redux/services/productApi";
-import { useAddvariantMutation } from "../../../redux/services/variantproductApi";
-import { addProduct } from "../../../redux/features/counter/productSlice";
-import { addvariant } from "../../../redux/features/counter/variantSlice";
+
 // import List Select
 import { useGetListoutletQuery } from "../../../redux/services/outletApi";
 import { useGetListbrandQuery } from "../../../redux/services/brandproductApi";
@@ -134,7 +132,7 @@ const Formvariant = ({ closeForm, onEdit }) => {
 
   // Submit
   const [createProduk] = useAddproductMutation();
-  const [createVariant] = useAddvariantMutation();
+
   const submitHandler = async () => {
     try {
       if (
@@ -158,33 +156,24 @@ const Formvariant = ({ closeForm, onEdit }) => {
       formData.append("gambar_produk", formLoginData.gambar_produk);
 
       // Send product data
-      const responsep = await createProduk(formData);
 
-      const id_produks = responsep?.data?.data?.id;
-
-      if (!id_produks) {
-        toast.error("Data Produk Failed");
-        return;
-      }
-      // Prosese Add Variant
-      const variantResponses = await Promise.all(
-        variants.map(async (variant) => {
-          return await createVariant({
-            id_produk: id_produks,
-            variant_name: variant.variant_name || formLoginData.produk_name,
-            harga_produk: variant.harga_produk,
-            harga_modal: variant.harga_modal,
-            sku: variant.sku,
-            stok: variant.stok,
-            min_stok: variant.min_stok,
-          });
-        })
-      );
-
-      variantResponses.forEach((response) => {
-        dispatch(addvariant(response));
+      variants.forEach((variant, index) => {
+        formData.append(
+          `variants[${index}][variant_name]`,
+          variant.variant_name || formLoginData.produk_name
+        );
+        formData.append(
+          `variants[${index}][harga_produk]`,
+          variant.harga_produk
+        );
+        formData.append(`variants[${index}][harga_modal]`, variant.harga_modal);
+        formData.append(`variants[${index}][sku]`, variant.sku);
+        formData.append(`variants[${index}][stok]`, variant.stok);
+        formData.append(`variants[${index}][min_stok]`, variant.min_stok);
       });
-      dispatch(addProduct(responsep)); // Jika response berisi data baru dari server
+
+      const response = await createProduk(formData);
+
       onEdit();
       toast.success("Data Berhasil Disimpan");
       // Reset form data setelah berhasil menyimpan

@@ -1,16 +1,17 @@
 const jwt = require('jsonwebtoken');
 const { sequelize } = require('../models/index.js');
-const config = require("../config/config.js")
 
 const protect = async (req, res, next) => {
   try {
+    // console.log('req -->', req)
     let token;
 
     token = req.cookies.jwt;
 
+
     if (token) {
       try {
-        const decoded = jwt.verify(token, config.env.JWT_SECRET_KEY);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
         const query = `SELECT * FROM users WHERE id_users = :userid`;
         const [user] = await sequelize.query(query, {
@@ -33,4 +34,12 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = protect;
+const testIntercept = async (req, res, next) => {
+  console.log('text intercepting')
+  next()
+}
+
+module.exports = {
+  protect,
+  testIntercept
+}
