@@ -6,10 +6,44 @@ import {
   Input,
   Button,
 } from "@material-tailwind/react";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
-import { NavLink } from "react-router-dom";
+import { useAddrolesMutation } from "../../../redux/services/rolesApi";
 
-const Formroles = () => {
+const Formroles = ({ cancel }) => {
+
+  const [nama_role, setNamaRole] = useState();
+
+  const [createRole, responseCreateRole] = useAddrolesMutation();
+
+  useEffect(() => {
+    console.log(responseCreateRole)
+    if (responseCreateRole.isSuccess) {
+      toast.dismiss()
+      toast.success("Data Berhasil Disimpan");
+      cancel()
+    } else if (responseCreateRole.isError) {
+      toast.dismiss()
+      toast.error(responseCreateRole.error?.data?.message);
+    }
+  }, [responseCreateRole])
+
+  const onSubmit = async () => {
+    try {
+      if (!nama_role) {
+        toast.dismiss()
+        toast.error("Data Harus Diisi Terlebih Dahulu");
+      } else {
+        await createRole({
+          "nama_role": nama_role
+        })
+      }
+    } catch (err) {
+      console.error("Error while saving user:", err);
+    }
+  }
+
   return (
     <>
       <div className="flex justify-center items-center place-content-center h-[79vh]">
@@ -26,16 +60,16 @@ const Formroles = () => {
           </CardHeader>
           <CardBody>
             <form className="flex flex-col gap-4 my-4">
-              <Input label="Kategori" type="text" />
-              <Input label="Keterangan" type="text" />
-              <Input label="Model" type="text" />
-              <Button size="lg" type="button">
+              <Input label="Nama Role" type="text" value={nama_role} onChange={(event) =>
+                setNamaRole(() => event.target.value)
+              } />
+              <Button size="lg" type="button" onClick={onSubmit}>
                 Save
               </Button>
             </form>
             <div className="flex flex-col gap-4 my-4">
-              <Button size="lg">
-                <NavLink to="/roles">Back</NavLink>
+              <Button size="lg" onClick={cancel}>
+                Cancel
               </Button>
             </div>
 
