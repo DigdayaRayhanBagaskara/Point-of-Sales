@@ -10,12 +10,12 @@ const Table = ({ head, rows }) => {
         <table className=" mt-4 w-full min-w-max table-auto text-left">
           {/* HEADER TABLE */}
 
-          <thead className="border-blue-gray-500">
+          <thead className="border-blue-gray-500 ">
             <tr className="text-center">
               {head.map((col, index_col) => (
                 <th
                   key={index_col}
-                  className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                  className="border-r border-white bg-blue-gray-50 p-4"
                 >
                   <Typography
                     variant="small"
@@ -40,15 +40,15 @@ const Table = ({ head, rows }) => {
                 <tr key={index} className="text-center">
                   {head.map((col, index_col) => (
                     <td
-                      className={`${classes} bg-blue-gray-50/50 w-16`}
+                      className={`${classes} border-r border-white bg-blue-gray-50/50 w-16`}
                       key={index_col}
                     >
                       {col.name === "GAMBAR PRODUK" ? (
-                        <div className="flex flex-col items-center justify-center">
+                        <div className="flex flex-col">
                           <img
                             src={col.cell(row)}
                             alt="Image"
-                            className="w-16 h-16 rounded-full mx-auto"
+                            className="rounded-full mx-auto"
                           />
                         </div>
                       ) : (
