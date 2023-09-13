@@ -40,7 +40,7 @@ const SalesReport = lazy(() =>
   import("./pages/Report/Salesreport/Salesreport")
 );
 const TransactionReport = lazy(() =>
-  import("./pages/Report/TransactionReport/Transactionreport")
+  import("./pages/Report/Transactionreport/Transactionreport")
 );
 const Roles = lazy(() => import("./pages/Master/Roles/Roles"));
 const Varian = lazy(() =>

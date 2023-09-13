@@ -4,7 +4,7 @@ import { serialize } from "../../utility/helpers";
 export const TransactionreportApi = createApi({
   reducerPath: "transactionreportApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000/api",
+    baseUrl: "/api",
   }),
   endpoints: (builder) => ({
     getListtransactionreport: builder.query({
