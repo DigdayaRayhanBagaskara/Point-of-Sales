@@ -18,6 +18,18 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    preview: {
+      host: true,
+      port: env.VITE_PORT,
+      https: env.VITE_HTTPS == "true" ? true : false,
+      proxy: {
+        "/api": {
+          target: env.VITE_API_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        },
+      },
+    },
     plugins: [react()],
     esbuild: {
       jsxFactory: "h",
