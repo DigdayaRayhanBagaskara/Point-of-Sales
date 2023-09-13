@@ -44,7 +44,7 @@ const Detail = ({ closeDForm, openDForm }) => {
 
   return (
     <>
-      <div className="flex justify-center items-center ">
+      <div className="flex justify-center items-center place-content-center h-[79vh]">
         <Card className="w-full max-w-[55rem]">
           <CardHeader
             color="gray"

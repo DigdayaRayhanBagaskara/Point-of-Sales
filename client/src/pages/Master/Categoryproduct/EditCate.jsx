@@ -58,7 +58,7 @@ const EditCate = ({ closeEForm, openEForm, onEdit }) => {
 
   return (
     <>
-      <div className="flex justify-center items-center place-content-center ">
+      <div className="flex justify-center items-center place-content-center h-[79vh]">
         <Card className="w-full max-w-[30rem] ">
           <CardHeader
             color="gray"

@@ -200,7 +200,7 @@ const Formvariant = ({ closeForm, onEdit }) => {
   };
   return (
     <>
-      <div className="flex justify-center items-center ">
+      <div className="flex justify-center items-center place-content-center h-[92vh]">
         <Card className="w-full max-w-[94rem]">
           <CardHeader
             color="gray"

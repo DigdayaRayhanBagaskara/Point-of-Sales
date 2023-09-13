@@ -197,7 +197,7 @@ const EditPromo = ({ closeEForm, openEForm, onEdit }) => {
 
   return (
     <>
-      <div className="flex justify-center items-center place-content-center h-[79vh]">
+      <div className="flex justify-center items-center place-content-center h-[94vh]">
         <Card className="w-full  max-w-[30rem] ">
           <CardHeader
             color="gray"

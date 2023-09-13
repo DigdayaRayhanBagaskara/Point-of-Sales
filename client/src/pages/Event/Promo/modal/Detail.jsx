@@ -15,7 +15,7 @@ const Detail = ({ closeDForm, openDForm }) => {
   console.log(openDForm.produk_categories.categories_name);
   return (
     <>
-      <div className="flex justify-center items-center ">
+      <div className="flex justify-center items-center place-content-center h-[79vh]">
         <Card className="w-full max-w-[30rem]">
           <CardHeader
             color="gray"
