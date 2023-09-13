@@ -1,7 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 // Import API
+import { authApi } from "./services/authApi";
 import { employeeApi } from "./services/employeeApi";
+import { employeeAccessApi } from "./services/employeeAccessApi";
 import { usersApi } from "./services/usersApi";
 import { brandproductApi } from "./services/brandproductApi";
 import { categoryproductApi } from "./services/categoryproductApi";
@@ -36,8 +38,10 @@ export const store = configureStore({
     promoSlice: promoSlice.reducer,
 
     // API
+    [authApi.reducerPath]: authApi.reducer,
     [categoryproductApi.reducerPath]: categoryproductApi.reducer,
     [employeeApi.reducerPath]: employeeApi.reducer,
+    [employeeAccessApi.reducerPath]: employeeAccessApi.reducer,
     [usersApi.reducerPath]: usersApi.reducer,
     [brandproductApi.reducerPath]: brandproductApi.reducer,
     [logmanageproductApi.reducerPath]: logmanageproductApi.reducer,
@@ -54,9 +58,11 @@ export const store = configureStore({
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
+      .concat(authApi.middleware)
       .concat(categoryproductApi.middleware)
       .concat(variantproductApi.middleware)
       .concat(employeeApi.middleware)
+      .concat(employeeAccessApi.middleware)
       .concat(usersApi.middleware)
       .concat(brandproductApi.middleware)
       .concat(logmanageproductApi.middleware)
