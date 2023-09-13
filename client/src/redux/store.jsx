@@ -10,7 +10,7 @@ import { rolesApi } from "./services/rolesApi";
 import { promoApi } from "./services/promoApi";
 import { salesreportApi } from "./services/salesreportApi";
 import { salestransactionApi } from "./services/salestransactionApi";
-import { TransactionreportApi } from "./services/TransactionreportApi";
+import { TransactionreportApi } from "./services/transactionreportApi";
 import { variantproductApi } from "./services/variantproductApi";
 import { discountApi } from "./services/discountApi";
 import { productApi } from "./services/productApi";
