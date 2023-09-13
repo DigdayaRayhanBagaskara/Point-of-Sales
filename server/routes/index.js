@@ -14,6 +14,9 @@ const employeeRouter = require("./employee.route.js");
 const employee_accessRouter = require("./employee_access.route.js");
 const transaksiRouter = require("./transaksi.route.js");
 // const variantRouter = require("./variant.route.js");
+const dashboardRouter = require("./dashboard.route.js");
+const salesReportRouter = require("./sales_report.route.js");
+const transactionReportRouter = require("./transaction_report.route.js");
 
 router.use("/auth", authRouter);
 router.use("/role", roleRouter);
@@ -27,6 +30,9 @@ router.use("/employee-access", employee_accessRouter);
 router.use("/promo", promoRouter);
 router.use("/transaksi", transaksiRouter);
 // router.use("/variant", variantRouter);
+router.use("/dashboard", dashboardRouter);
+router.use("/sales-report", salesReportRouter);
+router.use("/transaction-report", transactionReportRouter);
 
 module.exports = router;
 
