@@ -11,7 +11,7 @@ const get = async (req, res) => {
     let offset = parseInt(param?.offset) || 0;
 
     // Start Query untuk menampilkan seluruh data
-    let query = `
+      let query = `
         SELECT
           promo.*, 
           produk_categories.id_categories AS 'produk_categories.id_categories' ,
@@ -23,7 +23,7 @@ const get = async (req, res) => {
           produk.id_brand AS 'produk.id_brand' ,
           produk.produk_name AS 'produk.produk_name' ,
           produk.gambar_produk AS 'produk.gambar_produk' ,
-          produk.desc AS 'produk.desc' ,
+          produk.description AS 'produk.description' ,
           brands_produk.id_brands_produk AS 'brands_produk.id_brands_produk' ,
           brands_produk.brand_name AS 'brands_produk.brand_name' ,
           brands_produk.keterangan AS 'brands_produk.keterangan' ,
@@ -55,8 +55,8 @@ const get = async (req, res) => {
         LEFT JOIN outlet ON produk.id_outlet = outlet.id_outlet
       `;
 
-    if (keyword.length > 0) {
-      query += ` 
+      if (keyword.length > 0) {
+        query += ` 
         WHERE 
         promo.name LIKE $keyword OR
         discount.discount_names LIKE $keyword OR
@@ -65,46 +65,43 @@ const get = async (req, res) => {
         outlet.nama_outlet LIKE $keyword OR
         produk.produk_name LIKE $keyword 
         `;
-    }
+      }
 
-    if (limit > 0) {
-      query += ` LIMIT ` + limit;
-    }
+      if (limit > 0) {
+        query += ` LIMIT ` + limit;
+      }
 
-    if (offset >= 0) {
-      query += ` OFFSET ` + offset;
-    }
+      if (offset >= 0) {
+        query += ` OFFSET ` + offset;
+      }
 
-    const [x] = await sequelize.query(query, {
-      bind: { keyword: `%${keyword}%` },
-    });
-    const z = await mappingQueryArrayReturn(x);
-    let rows = [];
-    for (let row of z) {
-      if (row.discount.length == 1) {
-        row.discount = row.discount.length == 0 ? {} : row.discount[0];
+      const [x] = await sequelize.query(query, {
+        bind : { keyword : `%${keyword}%` }
+      });
+      const z = await mappingQueryArrayReturn(x);
+      let rows = [];
+      for (let row of z) {
+        if(row.discount.length == 1){
+          row.discount = row.discount.length == 0 ? {} : row.discount[0];
+        }
+        if(row.produk.length == 1){
+          row.produk = row.produk.length == 0 ? {} : row.produk[0];
+        }
+        if(row.produk_categories.length == 1){
+          row.produk_categories = row.produk_categories.length == 0 ? {} : row.produk_categories[0];
+        }
+        if(row.produk_variant.length == 1){
+          row.produk_variant = row.produk_variant.length == 0 ? {} : row.produk_variant[0];
+        }
+        if(row.brands_produk.length == 1){
+          row.brands_produk = row.brands_produk.length == 0 ? {} : row.brands_produk[0];
+        }
+        rows.push(row);
       }
-      if (row.produk.length == 1) {
-        row.produk = row.produk.length == 0 ? {} : row.produk[0];
-      }
-      if (row.produk_categories.length == 1) {
-        row.produk_categories =
-          row.produk_categories.length == 0 ? {} : row.produk_categories[0];
-      }
-      if (row.produk_variant.length == 1) {
-        row.produk_variant =
-          row.produk_variant.length == 0 ? {} : row.produk_variant[0];
-      }
-      if (row.brands_produk.length == 1) {
-        row.brands_produk =
-          row.brands_produk.length == 0 ? {} : row.brands_produk[0];
-      }
-      rows.push(row);
-    }
     // End Query untuk menampilkan seluruh data
 
     // Start Query untuk menghitung jumlah seluruh data
-    let countQuery = `
+      let countQuery = `
         SELECT 
           COUNT(promo.id_promo) AS count
         FROM 
@@ -116,8 +113,8 @@ const get = async (req, res) => {
         LEFT JOIN produk_variant ON promo.id_produk_variant = produk_variant.id_produk_variant
         LEFT JOIN outlet ON produk.id_outlet = outlet.id_outlet 
       `;
-    if (keyword.length > 0) {
-      countQuery += ` 
+      if (keyword.length > 0) {
+        countQuery += ` 
         WHERE 
           promo.name LIKE $keyword OR
           discount.discount_names LIKE $keyword OR
@@ -126,10 +123,10 @@ const get = async (req, res) => {
           outlet.nama_outlet LIKE $keyword OR
           produk.produk_name LIKE $keyword 
         `;
-    }
-    const [count] = await sequelize.query(countQuery, {
-      bind: { keyword: `%${keyword}%` },
-    });
+      }
+      const [count] = await sequelize.query(countQuery, {
+        bind : { keyword : `%${keyword}%` }
+      });
     // End Query untuk menghitung jumlah seluruh data
 
     res.status(200).json({
@@ -155,7 +152,7 @@ const getById = async (req, res) => {
     const id_promo = req.params?.id;
 
     // Start Query untuk menampilkan seluruh data
-    let query = `
+      let query = `
         SELECT
           promo.*, 
           produk_categories.id_categories AS 'produk_categories.id_categories' ,
@@ -167,7 +164,7 @@ const getById = async (req, res) => {
           produk.id_brand AS 'produk.id_brand' ,
           produk.produk_name AS 'produk.produk_name' ,
           produk.gambar_produk AS 'produk.gambar_produk' ,
-          produk.desc AS 'produk.desc' ,
+          produk.description AS 'produk.description' ,
           brands_produk.id_brands_produk AS 'brands_produk.id_brands_produk' ,
           brands_produk.brand_name AS 'brands_produk.brand_name' ,
           brands_produk.keterangan AS 'brands_produk.keterangan' ,
@@ -201,34 +198,31 @@ const getById = async (req, res) => {
           id_promo = $id_promo
       `;
 
-    const [x] = await sequelize.query(query, {
-      bind: { id_promo: id_promo },
-    });
-    const z = await mappingQueryArrayReturn(x);
-    let data = [];
-    for (let row of z) {
-      if (row.discount.length == 1) {
-        row.discount = row.discount.length == 0 ? {} : row.discount[0];
+      const [x] = await sequelize.query(query, {
+        bind : {id_promo : id_promo}
+      });
+      const z = await mappingQueryArrayReturn(x);
+      let data = [];
+      for (let row of z) {
+        if(row.discount.length == 1){
+          row.discount = row.discount.length == 0 ? {} : row.discount[0];
+        }
+        if(row.produk.length == 1){
+          row.produk = row.produk.length == 0 ? {} : row.produk[0];
+        }
+        if(row.produk_categories.length == 1){
+          row.produk_categories = row.produk_categories.length == 0 ? {} : row.produk_categories[0];
+        }
+        if(row.produk_variant.length == 1){
+          row.produk_variant = row.produk_variant.length == 0 ? {} : row.produk_variant[0];
+        }
+        if(row.brands_produk.length == 1){
+          row.brands_produk = row.brands_produk.length == 0 ? {} : row.brands_produk[0];
+        }
+        data.push(row);
       }
-      if (row.produk.length == 1) {
-        row.produk = row.produk.length == 0 ? {} : row.produk[0];
-      }
-      if (row.produk_categories.length == 1) {
-        row.produk_categories =
-          row.produk_categories.length == 0 ? {} : row.produk_categories[0];
-      }
-      if (row.produk_variant.length == 1) {
-        row.produk_variant =
-          row.produk_variant.length == 0 ? {} : row.produk_variant[0];
-      }
-      if (row.brands_produk.length == 1) {
-        row.brands_produk =
-          row.brands_produk.length == 0 ? {} : row.brands_produk[0];
-      }
-      data.push(row);
-    }
     // Start Query untuk menampilkan seluruh data
-
+    
     if (data.length > 0) {
       res.status(200).json({
         status: true,
@@ -291,9 +285,7 @@ const update = async (req, res) => {
 
     if (set_update.length) {
       set_update.push(`updated_at = NOW()`);
-      let query = `UPDATE promo SET ${set_update.join(
-        `,`
-      )} WHERE id_promo = $id_promo`;
+      let query = `UPDATE promo SET ${set_update.join(`,`)} WHERE id_promo = $id_promo`;
 
       const [result_id] = await sequelize.query(query, {
         bind: { id_promo: id_promo, ...param },
