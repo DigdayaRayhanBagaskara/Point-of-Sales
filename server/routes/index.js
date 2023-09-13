@@ -13,10 +13,11 @@ const categoriesRouter = require("./categories.route.js");
 const employeeRouter = require("./employee.route.js");
 const employee_accessRouter = require("./employee_access.route.js");
 const transaksiRouter = require("./transaksi.route.js");
-// const variantRouter = require("./variant.route.js");
+const variantRouter = require("./variant.route.js");
+const outletRouter = require("./outlet.route.js")
 
 router.use("/auth", authRouter);
-router.use("/role", roleRouter);
+router.use("/roles", roleRouter);
 router.use("/users", usersRouter);
 router.use("/produk", produkRouter);
 router.use("/discount", discountRouter);
@@ -26,7 +27,8 @@ router.use("/employee", employeeRouter);
 router.use("/employee-access", employee_accessRouter);
 router.use("/promo", promoRouter);
 router.use("/transaksi", transaksiRouter);
-// router.use("/variant", variantRouter);
+router.use("/variant", variantRouter);
+router.use("/outlet", outletRouter);
 
 module.exports = router;
 

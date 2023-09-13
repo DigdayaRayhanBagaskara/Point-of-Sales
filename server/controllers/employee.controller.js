@@ -6,41 +6,64 @@ const { sequelize } = require("../models/index.js");
 const get = async (req, res) => {
   try {
     const param = req.query;
+
     let keyword = param?.keyword || ``;
     let limit = parseInt(param?.limit) || 5;
     let offset = parseInt(param?.offset) || 0;
-
-    let query = `SELECT * FROM employee`;
-
-    if (keyword.length > 0) {
-      query += ` 
-        WHERE 
-          name LIKE '%${keyword}%'`;
-    }
-
-    if (limit > 0) {
-      query += " LIMIT " + limit;
-    }
-
-    if (offset >= 0) {
-      query += " OFFSET " + offset;
-    }
-
-    const [rows] = await sequelize.query(query);
     
+    // Start Query untuk menampilkan seluruh data
+      let query = `SELECT * FROM employee`;
 
-    const count = rows.length;
-    const data = {
-      total_row: count,
-      limit: limit,
-      offset: offset,
-      rows: rows,
-    };
+      if (keyword.length > 0) {
+        query += ` 
+          WHERE 
+            id_employee LIKE $keyword OR
+            id_outlet LIKE $keyword OR
+            name LIKE $keyword OR
+            agama LIKE $keyword OR
+            status LIKE $keyword 
+        `;
+      }
 
-    res.status(201).json({
+      if (limit > 0) {
+        query += ` LIMIT ` + limit;
+      }
+
+      if (offset >= 0) {
+        query += ` OFFSET ` + offset;
+      }
+
+      const [rows] = await sequelize.query(query, {
+        bind : { keyword : `%${keyword}%` }
+      });
+    // End Query untuk menampilkan seluruh data
+    
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `SELECT COUNT(employee.id_employee) AS count FROM employee`;
+      
+      if (keyword.length > 0) {
+        countQuery += ` 
+        WHERE 
+        id_employee LIKE $keyword OR
+        id_outlet LIKE $keyword OR
+        name LIKE $keyword OR
+        agama LIKE $keyword OR
+        status LIKE $keyword 
+    `;
+      }
+      const [count] = await sequelize.query(countQuery, {
+        bind : { keyword : `%${keyword}%` }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+    
+    res.status(200).json({
       status: true,
-      message: "GET DATA employee",
-      data: data,
+      data: {
+        total_row: count[0] ? count[0].count : 0,
+        limit: limit,
+        offset: offset,
+        rows: rows, 
+      }
     });
   } catch (err) {
     res.status(500).json({
@@ -50,6 +73,7 @@ const get = async (req, res) => {
     });
   }
 };
+
 
 //GET BY ID untuk GET single dataa
 const getById = async (req, res) => {
@@ -178,7 +202,7 @@ const update = async (req, res) => {
     } else {
       res.status(500).json({
         status: false,
-        message: `NO USER WITH ID ${userId}`,
+        message: `NO USER WITH ID ${employeeId}`,
       });
     }
   } catch (err) {

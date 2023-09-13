@@ -9,42 +9,58 @@ const config = require('../config/config.js')
 const get = async (req, res) => {
   try {
     const param = req.query;
+
     let keyword = param?.keyword || ``;
     let limit = parseInt(param?.limit) || 5;
     let offset = parseInt(param?.offset) || 0;
-
-    let query = `SELECT * FROM role`;
-
-    if (keyword.length > 0) {
-      query += ` 
-        WHERE 
-          nama_role LIKE '%${keyword}%'
-      `;
-    }
-
-    if (limit > 0) {
-      query += " LIMIT " + limit;
-    }
-
-    if (offset >= 0) {
-      query += " OFFSET " + offset;
-    }
-
-    const [rows] = await sequelize.query(query);
     
+    // Start Query untuk menampilkan seluruh data
+      let query = `SELECT * FROM role`;
 
-    const count = rows.length;
-    const data = {
-      total_row: count,
-      limit: limit,
-      offset: offset,
-      rows: rows,
-    };
+      if (keyword.length > 0) {
+        query += ` 
+          WHERE 
+            id_rol LIKE $keyword OR
+            nama_role LIKE $keyword 
+        `;
+      }
 
-    res.status(201).json({
+      if (limit > 0) {
+        query += ` LIMIT ` + limit;
+      }
+
+      if (offset >= 0) {
+        query += ` OFFSET ` + offset;
+      }
+
+      const [rows] = await sequelize.query(query, {
+        bind : { keyword : `%${keyword}%` }
+      });
+    // End Query untuk menampilkan seluruh data
+    
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `SELECT COUNT(role.id_rol) AS count FROM role`;
+      
+      if (keyword.length > 0) {
+        countQuery += ` 
+        WHERE 
+        id_rol LIKE $keyword OR
+        nama_role LIKE $keyword 
+    `;
+      }
+      const [count] = await sequelize.query(countQuery, {
+        bind : { keyword : `%${keyword}%` }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+    
+    res.status(200).json({
       status: true,
-      message: "GET DATA users",
-      data: data,
+      data: {
+        total_row: count[0] ? count[0].count : 0,
+        limit: limit,
+        offset: offset,
+        rows: rows, 
+      }
     });
   } catch (err) {
     res.status(500).json({

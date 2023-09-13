@@ -1,27 +1,18 @@
-const express = require('express');
-const rolecontroller = require('../controllers/role.controller');
+const express = require("express");
+const role_controller = require("../controllers/role.controller.js");
 const router = express.Router();
-// const authMiddleware = require('../middleware/authMiddleware').default;
-// const { protect } = require('../middleware/auth.js');
-// const { route } = require('./employee.route.js');
 
 //Get
-router.get('/:id', rolecontroller.getById);
-router.get('/', rolecontroller.get);
+router.get("/:id", role_controller.getById);
+router.get("/", role_controller.get);
 
-//Inser
-//router.post('/Role/',usersController.storeRole);
-router.post('/', rolecontroller.store);
-
+//Insert
+router.post("/", role_controller.store);
 
 //Update
-//router.put('/Role/:id', usersController.updateRole);
-router.put('/:id', rolecontroller.update);
-
+router.put("/:id", role_controller.update);
 
 //Delete
-router.delete('/:id', rolecontroller.destroy);
-//router.delete('/Role/:id', usersController.deleteRole);
-
+router.delete("/:id", role_controller.destroy);
 
 module.exports = router;
