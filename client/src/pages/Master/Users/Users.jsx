@@ -1,7 +1,10 @@
 /* eslint-disable no-unused-vars */
-import { Button, Card, CardHeader, CardBody, Typography, CardFooter } from "@material-tailwind/react";
+import { Button, Card, CardHeader, CardBody, Typography, CardFooter, Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import { UserPlusIcon } from "@heroicons/react/24/solid";
+import {
+  UserPlusIcon,
+  MagnifyingGlassCircleIcon
+} from "@heroicons/react/24/solid";
 import { useGetListusersQuery, useDeleteusersByIdMutation } from "../../../redux/services/usersApi";
 import { toast } from "react-toastify";
 
@@ -57,7 +60,7 @@ const Users = () => {
       cell: (row) => (
         <>
           <div className="flex justify-center gap-4">
-            <Button onClick={() => onShowModalEdit(row)}>Edit</Button>
+            <Button color="blue" onClick={() => onShowModalEdit(row)}>Edit</Button>
             <Button color="red" onClick={() => onShowModalDelete(row)}>
               Delete
             </Button>
@@ -94,6 +97,11 @@ const Users = () => {
     setParams({ ...params, offset: ((parseInt(value) - 1) * params.limit) })
   }
 
+  const handleSearch = (e) => {
+    const { value } = e.target;
+    setParams({ ...params, keyword: value, offset: 0 });
+  };
+
   return (
     <>
       <div className="ml-2 pt-5s mx-auto mb-auto h-full min-h-[70vh] p-2 md:pr-2">
@@ -104,18 +112,27 @@ const Users = () => {
                 <Typography variant="h5" color="blue-gray">
                   Data Users
                 </Typography>
-                <Typography color="gray" className="mt-1 font-normal">
-                  See information about all members
-                </Typography>
               </div>
               <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                <Button className="flex items-center gap-3" size="sm" onClick={() => onShowModalInsert()}>
+                <Button color="blue" className="flex items-center gap-3" size="sm" onClick={() => onShowModalInsert()}>
                   <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
                   Add Data
                 </Button>
               </div>
             </div>
           </CardHeader>
+
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row m-4 mb-3">
+            <div className="w-full md:w-72">
+              <Input
+                label="Search"
+                icon={<MagnifyingGlassCircleIcon className="h-5 w-5" />}
+                value={params.keyword}
+                onChange={(e) => handleSearch(e)} // Panggil fungsi handleSearch
+              />
+            </div>
+          </div>
+
           {/* Table */}
           <Table head={header} rows={userListData.isSuccess ? userListData.data?.data?.rows : []} />
           <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
