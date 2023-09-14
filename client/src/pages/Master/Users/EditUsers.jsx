@@ -20,7 +20,7 @@ const EditUsers = ({ cancel, data }) => {
         nama: data?.username,
         email: data?.email,
         nohp: data?.nohp,
-        password: data?.password
+        password: '__PASSWORD__'
     });
 
     const { id_users, id_rol, nama, email, nohp, password } = formData
@@ -91,7 +91,14 @@ const EditUsers = ({ cancel, data }) => {
                                     nohp: event.target.value,
                                 })
                             } />
-                            <Input label="Password" type="password" value={formData.password} onChange={(event) =>
+                            <Input onFocus={() => {
+                                if (formData.password === '__PASSWORD__') {
+                                    setFormData({
+                                        ...formData,
+                                        password: "",
+                                    })
+                                }
+                            }} label="Password" type="password" value={formData.password} onChange={(event) =>
                                 setFormData({
                                     ...formData,
                                     password: event.target.value,

@@ -95,6 +95,8 @@ const EditEmployee = ({ cancel, dataEmployee }) => {
                 ...formUser,
                 email: usersList.data?.data[0]?.email,
                 nohp: usersList.data?.data[0]?.nohp,
+                password: "__PASSWORD__",
+                confirmPassword: "__PASSWORD__"
             })
             const filterRole = listRole.filter(value => value.id_rol === usersList.data?.data[0]?.id_rol)
             setRole(filterRole[0])
@@ -302,7 +304,15 @@ const EditEmployee = ({ cancel, dataEmployee }) => {
                                             nohp: event.target.value,
                                         })
                                     } />
-                                    <Input required label="Password" type="password" value={formUser.password} onChange={(event) =>
+                                    <Input required onFocus={() => {
+                                        if (formUser.password === '__PASSWORD__') {
+                                            setFormUser({
+                                                ...formUser,
+                                                password: "",
+                                                confirmPassword: ""
+                                            })
+                                        }
+                                    }} label="Password" type="password" value={formUser.password} onChange={(event) =>
                                         setFormUser({
                                             ...formUser,
                                             password: event.target.value,
