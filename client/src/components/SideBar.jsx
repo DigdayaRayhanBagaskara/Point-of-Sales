@@ -265,14 +265,14 @@ const SideBar = () => {
           </Accordion>
 
           {/* Roles */}
-          <NavLink to="roles" className="flex items-center">
+          {/* <NavLink to="roles" className="flex items-center">
             <ListItem>
               <ListItemPrefix>
                 <PresentationChartBarIcon className="h-5 w-5" />
               </ListItemPrefix>
               Roles
             </ListItem>
-          </NavLink>
+          </NavLink> */}
 
           {/* Transaction */}
           <Accordion
