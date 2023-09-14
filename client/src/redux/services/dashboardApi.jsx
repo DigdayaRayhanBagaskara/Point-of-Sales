@@ -4,7 +4,7 @@ import { serialize } from "../../utility/helpers";
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/dashboard",
+    baseUrl: "api/dashboard",
   }),
   endpoints: (builder) => ({
     getGrossSalesDashboard: builder.query({

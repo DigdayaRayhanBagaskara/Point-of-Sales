@@ -25,6 +25,7 @@ import { productSlice } from "./features/counter/productSlice";
 import { discountSlice } from "./features/counter/discountSlice";
 import { variantSlice } from "./features/counter/variantSlice";
 import { promoSlice } from "./features/counter/promoSlice";
+import { dashboardApi } from "./services/dashboardApi";
 
 export const store = configureStore({
   reducer: {
@@ -54,6 +55,7 @@ export const store = configureStore({
     [promoApi.reducerPath]: promoApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [outletApi.reducerPath]: outletApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -73,5 +75,6 @@ export const store = configureStore({
       .concat(discountApi.middleware)
       .concat(promoApi.middleware)
       .concat(productApi.middleware)
-      .concat(outletApi.middleware),
+      .concat(outletApi.middleware)
+      .concat(dashboardApi.middleware),
 });
