@@ -257,54 +257,66 @@ const store = async (req, res) => {
   }
 };
 
-//UPDATE untuk update data
+
 const update = async (req, res) => {
   try {
-    const param = req.body;
-    const id_produk = req.params.id;
-    // const gambar_produk = req.protocol + "://" + req.get("host") + "/images/" + req.file.filename;
+      const id_produk_variant = req.params.id_produk_variant;
+      const nama_variant = req.body.nama_variant;
 
-    // const [produk] = await sequelize.query('SELECT * FROM produk WHERE id_produk = $id_produk', {
-    //   bind : {id_produk : id_produk} 
-    // })
+      const stok = req.body.stok;
 
-    // const gambar_produk_lama = produk[0].gambar_produk.split('/');
-    // const filePath = path.join(__dirname, '../public/images/', gambar_produk_lama[4]);
-    // fs.unlink(filePath, (err) => {
-    //   if (err) {
-    //     console.error('Terjadi kesalahan saat menghapus file:', err);
-    //   } else {  
-    //     console.log('File berhasil dihapus');
-    //   }
-    // });
-    let set_update = [];
 
-    for (let item in param) {
-      set_update.push(`${item} = $${item}`);
-    }
+      sequelize.query(
+        `SELECT id_produk_variant FROM produk_variant WHERE id_produk_variant = ?`,
+        {
+          replacements: [id_produk_variant],
+          type: Sequelize.QueryTypes.SELECT
+        }
+      ).then(results => {
+        if (results.length > 0) {
+          // Step 2: Jika Ada ID yang Sama, Lakukan Update
+          sequelize.query(
+            `UPDATE produk_variant SET nama_variant = ?, stok = ? WHERE id = ?`,
+            {
+              replacements: [nama_variant, stok, id_produk_variant],
+              type: Sequelize.QueryTypes.UPDATE
+            }
+          ).then(updatedResult => {
+            console.log('Data produk_variant berhasil diupdate');
+          }).catch(error => {
+            console.error(error);
+            res.status(500).send('Terjadi kesalahan saat melakukan operasi UPDATE pada produk_variant');
+          });
+        } else {
 
-    if (set_update.length) {
-      let query = ` UPDATE produk, produk_variant SET ${set_update} WHERE produk.id_produk = $id_produk AND produk_variant.id_produk = $id_produk`; 
+          sequelize.query(
+            `INSERT INTO produk_variant () VALUES (?, ?, ?)`,
+            {
+              replacements: [id_produk_variant, nama_variant, stok],
+              type: Sequelize.QueryTypes.INSERT
+            }
+          ).then(insertedResult => {
+            console.log('Data produk_variant berhasil diinsert');
+          }).catch(error => {
+            console.error(error);
+            res.status(500).send('Terjadi kesalahan saat melakukan operasi INSERT pada produk_variant');
+          });
+        }
 
-      const [result_id] = await sequelize.query(query, {
-        bind: { id_produk: id_produk, ...param },
+        sequelize.query(
+          `DELETE FROM produk_variant WHERE id NOT IN (?)`,
+          {
+            replacements: [id_produk_variant],
+            type: Sequelize.QueryTypes.DELETE
+          }
+      ).then(deletedResult => {
+        console.log('Data yang tidak ada dalam parameter berhasil dihapus');
+      }).catch(error => {
+        console.error(error);
+        res.status(500).send('Terjadi kesalahan saat melakukan operasi DELETE pada produk_variant');
       });
+    });
 
-      console.log(result_id);
-      console.log(result_id);
-      console.log(result_id);
-
-      res.status(201).json({
-        status: true,
-        message: "SUCCESS UBAH DATA PRODUK",
-        data: result_id, ...param,
-      });
-    } else {
-      res.status(500).json({
-        status: false,
-        message: "DATA PRODUK YANG DITUJU TIDAK ADA",
-      });
-    }
   } catch (err) {
     let validationError = JSON.parse(JSON.stringify(err))?.original;
 
