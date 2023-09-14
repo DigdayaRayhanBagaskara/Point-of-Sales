@@ -15,38 +15,18 @@ import { toast } from "react-toastify";
 import { useUpdateemployeeByIdMutation } from "../../../redux/services/employeeApi";
 import { useUpdateusersByIdMutation, useGetusersByIdQuery, useDeleteusersByIdMutation, useAddusersMutation } from "../../../redux/services/usersApi";
 import { useGetemployeeByIdAccessQuery, useDeleteemployeeByIdAccessMutation, useAddemployeeAccessMutation } from "../../../redux/services/employeeAccessApi";
+import { useGetListoutletQuery } from "../../../redux/services/outletApi";
+import { useGetListrolesQuery } from "../../../redux/services/rolesApi";
 
 const EditEmployee = ({ cancel, dataEmployee }) => {
+    const outletList = useGetListoutletQuery()
+    const rolesList = useGetListrolesQuery()
 
-    const listOutlet = [
-        {
-            "id_outlet": 3,
-            "nama_outlet": 'rumbai'
-        },
-        {
-            "id_outlet": 4,
-            "nama_outlet": 'indomaret soekarno hatta'
-        },
-        {
-            "id_outlet": 5,
-            "nama_outlet": 'rick komputer'
-        },
-    ]
-
-    const listRole = [
-        {
-            "id_rol": 1,
-            "nama_role": 'admin'
-        },
-        {
-            "id_rol": 2,
-            "nama_role": 'kasir'
-        },
-    ]
-
+    const [listOutlet, setListOutlet] = useState([])
+    const [listRole, setListRole] = useState([])
     const [access, setAccess] = useState(false)
     const [enableAccess, setEnableAccess] = useState(false)
-    const [outlet, setOutlet] = useState(listOutlet.filter(value => value.id_outlet === dataEmployee.id_outlet)[0])
+    const [outlet, setOutlet] = useState([])
     const [role, setRole] = useState()
     const [firstUpdate, setFirstUpdate] = useState(true)
 
@@ -81,6 +61,17 @@ const EditEmployee = ({ cancel, dataEmployee }) => {
 
     const { name, agama, status, alamat } = formEmployee
     const { email, nohp, password, confirmPassword } = formUser
+
+    useEffect(() => {
+        if (outletList.isSuccess) {
+            setListOutlet(outletList.data)
+            setOutlet(outletList.data.filter(value => value.id_outlet === dataEmployee.id_outlet)[0])
+        }
+
+        if(rolesList.isSuccess){
+            setListRole(rolesList.data?.data?.rows)
+          }
+    }, [outletList, rolesList])
 
     useEffect(() => {
         if (employeeAccess.isSuccess) {
@@ -249,7 +240,7 @@ const EditEmployee = ({ cancel, dataEmployee }) => {
                                 {
                                     listOutlet.map((value, key) => {
                                         return (
-                                            <Option key={key} onClick={() => setOutlet(value)}>{value.nama_outlet}</Option>
+                                            <Option key={key} onClick={() => setOutlet(value)}>{value?.nama_outlet}</Option>
                                         )
                                     })
                                 }
@@ -287,7 +278,7 @@ const EditEmployee = ({ cancel, dataEmployee }) => {
                                         {
                                             listRole.map((value, key) => {
                                                 return (
-                                                    <Option key={key} onClick={() => setRole(value)}>{value.nama_role}</Option>
+                                                    <Option key={key} onClick={() => setRole(value)}>{value?.nama_role}</Option>
                                                 )
                                             })
                                         }

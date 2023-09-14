@@ -5,27 +5,37 @@ import {
   Typography,
   Input,
   Button,
+  Select,
+  Option
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { useAddusersMutation } from "../../../redux/services/usersApi";
+import { useGetListrolesQuery } from "../../../redux/services/rolesApi";
 
 const FormUsers = ({ cancel }) => {
+  const [createUser, responseCreateUser] = useAddusersMutation();
+  const rolesList = useGetListrolesQuery()
 
+  const [listRole, setListRole] = useState([])
+  const [role, setRole] = useState()
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
     nohp: "",
     password: ""
   });
-
+  
   const { nama, email, nohp, password } = formData
 
-  const [createUser, responseCreateUser] = useAddusersMutation();
+  useEffect(() => {
+    if (rolesList.isSuccess) {
+      setListRole(rolesList.data?.data?.rows)
+    }
+  }, [rolesList])
 
   useEffect(() => {
-    console.log(responseCreateUser)
     if (responseCreateUser.isSuccess) {
       toast.dismiss()
       toast.success("Data Berhasil Disimpan");
@@ -43,7 +53,7 @@ const FormUsers = ({ cancel }) => {
         toast.error("Data Harus Diisi Terlebih Dahulu");
       } else {
         createUser({
-          "id_rol": 2,
+          "id_rol": role.id_rol,
           "username": nama,
           "password": password,
           "email": email,
@@ -70,6 +80,15 @@ const FormUsers = ({ cancel }) => {
           </CardHeader>
           <CardBody>
             <form className="flex flex-col gap-4 my-4">
+              <Select label="Role" value={role?.nama_role}>
+                {
+                  listRole.map((value, key) => {
+                    return (
+                      <Option key={key} onClick={() => setRole(value)}>{value?.nama_role}</Option>
+                    )
+                  })
+                }
+              </Select>
               <Input label="Nama" type="text" value={formData.nama} onChange={(event) =>
                 setFormData({
                   ...formData,
@@ -95,7 +114,7 @@ const FormUsers = ({ cancel }) => {
                 })
               } />
             </form>
-            
+
             <div className="flex justify-end gap-2">
               <Button className="bg-gray-800 hover:bg-red-400" size="md" onClick={cancel}>
                 Cancel

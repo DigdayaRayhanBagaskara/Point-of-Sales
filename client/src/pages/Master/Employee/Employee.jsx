@@ -7,15 +7,19 @@ import {
 } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 
-import Table from "../../../components/Table";
 import { useGetListemployeeQuery } from "../../../redux/services/employeeApi";
+import { useGetListoutletQuery } from "../../../redux/services/outletApi";
+
+import Table from "../../../components/Table";
 import Pagination from "../../../components/Pagination";
 import EditEmployee from "./EditEmployee";
 import FormEmployee from "./Formemployee";
 import DeleteEmployee from "./DeleteEmployee";
 
 const Employee = () => {
+  const outletList = useGetListoutletQuery()
 
+  const [listOutlet, setListOutlet] = useState([])
   const [showModalInsert, setShowModalInsert] = useState(false)
   const [showModalEdit, setShowModalEdit] = useState(false)
   const [showModalDelete, setShowModalDelete] = useState(false)
@@ -23,20 +27,6 @@ const Employee = () => {
   const [textSearch, setTextSearch] = useState('')
   const [outlet, setOutlet] = useState()
 
-  const listOutlet = [
-    {
-      "id_outlet": 3,
-      "nama_outlet": 'rumbai'
-    },
-    {
-      "id_outlet": 4,
-      "nama_outlet": 'indomaret soekarno hatta'
-    },
-    {
-      "id_outlet": 5,
-      "nama_outlet": 'rick komputer'
-    },
-  ]
 
   const [params, setParams] = useState({
     keyword: "",
@@ -53,6 +43,12 @@ const Employee = () => {
   });
 
   const totalPages = (employeeListData.data?.data?.total_row === 0 ? 1 : Math.ceil(employeeListData.data?.data?.total_row / params.limit))
+
+  useEffect(() => {
+    if(outletList.isSuccess){
+      setListOutlet(outletList.data)
+    }
+  }, [outletList])
 
   useEffect(() => {
     if (employeeListData.isError) {
