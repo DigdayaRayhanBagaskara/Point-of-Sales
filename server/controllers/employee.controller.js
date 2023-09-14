@@ -10,15 +10,21 @@ const get = async (req, res) => {
     let keyword = param?.keyword || ``;
     let limit = parseInt(param?.limit) || 5;
     let offset = parseInt(param?.offset) || 0;
+    let filter = param?.filter || ``
     
     // Start Query untuk menampilkan seluruh data
       let query = `SELECT * FROM employee`;
 
+      if(filter.length > 0){
+        query += ` 
+        WHERE 
+          id_outlet LIKE $keyword
+          `
+      }
+
       if (keyword.length > 0) {
         query += ` 
           WHERE 
-            id_employee LIKE $keyword OR
-            id_outlet LIKE $keyword OR
             name LIKE $keyword OR
             agama LIKE $keyword OR
             status LIKE $keyword OR
@@ -35,18 +41,23 @@ const get = async (req, res) => {
       }
 
       const [rows] = await sequelize.query(query, {
-        bind : { keyword : `%${keyword}%` }
+        bind : { keyword : `%${filter.length > 0 ? filter : keyword}%` }
       });
     // End Query untuk menampilkan seluruh data
     
     // Start Query untuk menghitung jumlah seluruh data
       let countQuery = `SELECT COUNT(employee.id_employee) AS count FROM employee`;
+
+      if(filter.length > 0){
+        countQuery += ` 
+        WHERE 
+          id_outlet LIKE $keyword
+          `
+      }
       
       if (keyword.length > 0) {
         countQuery += ` 
         WHERE 
-        id_employee LIKE $keyword OR
-        id_outlet LIKE $keyword OR
         name LIKE $keyword OR
         agama LIKE $keyword OR
         status LIKE $keyword OR
@@ -54,7 +65,7 @@ const get = async (req, res) => {
     `;
       }
       const [count] = await sequelize.query(countQuery, {
-        bind : { keyword : `%${keyword}%` }
+        bind : { keyword : `%${filter.length > 0 ? filter : keyword}%` }
       });
     // End Query untuk menghitung jumlah seluruh data
     
