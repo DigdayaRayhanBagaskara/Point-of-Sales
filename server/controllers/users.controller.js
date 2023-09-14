@@ -51,7 +51,7 @@ const store = async (req, res) => {
       bind: {
         id_rol: param.id_rol,
         username: param.username,
-        password: param.password, // Use the hashed password here
+        password: hashedPassword, // Use the hashed password here
         email: param.email,
         nohp: param.nohp,
         created_at: createdAt,
@@ -223,7 +223,8 @@ const update = async (req, res) => {
       nohp = $nohp,
       updated_at = $updateAt
       WHERE id_users = ${parseInt(userId)}`;
-    } else {
+    } else
+     {
       query = `UPDATE users SET id_rol = $idrole, 
       username = $userName, 
       password = $pass, 
