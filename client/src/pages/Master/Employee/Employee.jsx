@@ -1,7 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
-import { Button, Card, CardHeader, Typography, CardFooter, CardBody } from "@material-tailwind/react";
-import { UserPlusIcon } from "@heroicons/react/24/solid";
+import { Button, Card, CardHeader, Typography, CardFooter, CardBody, Input, Select, Option} from "@material-tailwind/react";
+import {
+  UserPlusIcon,
+  MagnifyingGlassCircleIcon
+} from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 
 import Table from "../../../components/Table";
@@ -17,6 +20,8 @@ const Employee = () => {
   const [showModalEdit, setShowModalEdit] = useState(false)
   const [showModalDelete, setShowModalDelete] = useState(false)
   const [selectedUser, setSelectedUser] = useState()
+  const [textSearch, setTextSearch] = useState('')
+  const [outlet, setOutlet] = useState()
 
   const listOutlet = [
     {
@@ -37,12 +42,14 @@ const Employee = () => {
     keyword: "",
     limit: 5,
     offset: 0,
+    filter: ""
   });
 
   const employeeListData = useGetListemployeeQuery({
     keyword: params.keyword,
     limit: params.limit,
     offset: params.offset,
+    filter: params.filter
   });
 
   const totalPages = (employeeListData.data?.data?.total_row === 0 ? 1 : Math.ceil(employeeListData.data?.data?.total_row / params.limit))
@@ -80,7 +87,7 @@ const Employee = () => {
       cell: (row) => (
         <>
           <div className="flex justify-center gap-4">
-            <Button onClick={() => onShowModalEdit(row)}>Edit</Button>
+            <Button color="blue" onClick={() => onShowModalEdit(row)}>Edit</Button>
             <Button color="red" onClick={() => onShowModalDelete(row)}>
               Delete
             </Button>
@@ -117,6 +124,19 @@ const Employee = () => {
     setParams({ ...params, offset: ((parseInt(value) - 1) * params.limit) })
   }
 
+  const handleSearch = (e) => {
+    const { value } = e.target;
+    setParams({ ...params, keyword: value, offset: 0, filter: "" });
+    setTextSearch(value)
+    setOutlet()
+  };
+
+  const onChangeOutlet = (value) => {
+    setParams({ ...params, filter: value.id_outlet, offset: 0, keyword: "" });
+    setOutlet(value)
+    setTextSearch('')
+  }
+
   return (
     <>
       <div className="ml-2 pt-5s mx-auto mb-auto h-full min-h-[70vh] p-2 md:pr-2">
@@ -127,18 +147,42 @@ const Employee = () => {
                 <Typography variant="h5" color="blue-gray">
                   Data Employee
                 </Typography>
-                <Typography color="gray" className="mt-1 font-normal">
-                  See information about all members
-                </Typography>
               </div>
               <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                <Button className="flex items-center gap-3" size="sm" onClick={() => onShowModalInsert()}>
+                <Button color="blue" className="flex items-center gap-3" size="sm" onClick={() => onShowModalInsert()}>
                   <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
                   Add Data
                 </Button>
               </div>
             </div>
           </CardHeader>
+
+          <div className="flex flex-col items-center justify-between md:flex-row m-4 mb-3">
+            <div className="w-full md:w-72">
+              <Input
+                label="Search"
+                icon={<MagnifyingGlassCircleIcon className="h-5 w-5" />}
+                value={textSearch}
+                onChange={(e) => handleSearch(e)} // Panggil fungsi handleSearch
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-between md:flex-row m-4 mb-3">
+            <div className="w-full md:w-72">
+              <Select label="Filter Outlet" value={outlet?.nama_outlet}>
+                {
+                  listOutlet.map((value, key) => {
+                    return (
+                      <Option key={key} onClick={() => onChangeOutlet(value)}>{value.nama_outlet}</Option>
+                    )
+                  })
+                }
+              </Select>
+            </div>
+          </div>
+
+          {/* TABLE */}
           <Table head={header} rows={employeeListData.isSuccess ? employeeListData?.data?.data?.rows : []} />
           <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
             <Pagination totalPages={totalPages} onPageChange={onPageChange} />

@@ -49,23 +49,16 @@ const DeleteUsers = ({ cancel, data }) => {
                         setPassword(e.target.value)
                     }}
                 />
-                <Button size="lg" type="button" onClick={handleDelete}>
-                    Delete
-                </Button>
             </form>
             <div className="flex flex-col gap-4 my-4">
-                <Button size="lg" onClick={cancel}>
+                <Button className="bg-gray-600" size="md" onClick={cancel}>
                     Cancel
+                </Button>
+                <Button className="bg-red-400" size="md" type="button" onClick={handleDelete}>
+                    Delete
                 </Button>
             </div>
 
-            <Typography
-                variant="small"
-                color="gray"
-                className="mt-2 flex items-center justify-center gap-2 font-normal opacity-60"
-            >
-                &copy; copyright 2023
-            </Typography>
         </>
     );
 };

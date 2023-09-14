@@ -269,23 +269,16 @@ const FormEmployee = ({ cancel }) => {
                 </>
               }
 
-              <Button size="lg" type="button" onClick={onSubmit}>
-                Save
-              </Button>
             </form>
-            <div className="flex flex-col gap-4 my-4">
-              <Button size="lg" onClick={cancel}>
+            <div className="flex justify-end gap-2">
+              <Button className="bg-gray-800 hover:bg-red-400" size="md" onClick={cancel}>
                 Cancel
+              </Button>
+              <Button className="bg-black hover:bg-blue-600" size="md" type="button" onClick={onSubmit}>
+                Save
               </Button>
             </div>
 
-            <Typography
-              variant="small"
-              color="gray"
-              className="mt-2 flex items-center justify-center gap-2 font-normal opacity-60"
-            >
-              &copy; copyright 2023
-            </Typography>
           </CardBody>
         </Card>
       </div>
