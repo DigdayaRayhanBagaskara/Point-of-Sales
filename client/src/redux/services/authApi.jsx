@@ -15,8 +15,15 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["authApi"],
     }),
+    logoutAdmin: builder.mutation({
+      query: (params) => ({
+        url: `/auth/logout`,
+        method: "POST",
+      }),
+      invalidatesTags: ["authApi"],
+    }),
   }),
   refetchOnMountOrArgChange: true,
 });
 
-export const { useAuthAdminMutation } = authApi;
+export const { useAuthAdminMutation, useLogoutAdminMutation } = authApi;

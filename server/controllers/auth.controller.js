@@ -73,7 +73,7 @@ const login = async (req, res) => {
           httpOnly: true,
           secure: config.env.NODE_ENV !== 'development',
           sameSite: 'strict',
-          maxAge: 30 * 24 * 60 * 60 * 1000,
+          maxAge: 24 * 60 * 60 * 1000,
         });
   
         // save to localstorage
