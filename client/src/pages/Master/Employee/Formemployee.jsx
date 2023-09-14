@@ -15,15 +15,18 @@ import { toast } from "react-toastify";
 import { useAddemployeeMutation } from "../../../redux/services/employeeApi";
 import { useAddusersMutation } from "../../../redux/services/usersApi";
 import { useGetListoutletQuery } from "../../../redux/services/outletApi";
+import { useGetListrolesQuery } from "../../../redux/services/rolesApi";
 import { useAddemployeeAccessMutation } from "../../../redux/services/employeeAccessApi";
 
 const FormEmployee = ({ cancel }) => {
-
+  const outletList = useGetListoutletQuery()
+  const rolesList = useGetListrolesQuery()
   const [createEmployee, responseCreateEmployee] = useAddemployeeMutation();
   const [createUser, responseCreateUser] = useAddusersMutation();
   const [createEmployeeAccess, responseCreateEmployeeAccess] = useAddemployeeAccessMutation();
-  // const listOutlet = useGetListoutletQuery()
-
+  
+  const [listOutlet, setListOutlet] = useState([])
+  const [listRole, setListRole] = useState([])
   const [enableAccess, setEnableAccess] = useState(false)
   const [outlet, setOutlet] = useState()
   const [role, setRole] = useState()
@@ -43,31 +46,16 @@ const FormEmployee = ({ cancel }) => {
   const { name, agama, status, alamat } = formEmployee
   const { email, nohp, password, confirmPassword } = formUser
 
-  const listOutlet = [
-    {
-      "id_outlet": 3,
-      "nama_outlet": 'rumbai'
-    },
-    {
-      "id_outlet": 4,
-      "nama_outlet": 'indomaret soekarno hatta'
-    },
-    {
-      "id_outlet": 5,
-      "nama_outlet": 'rick komputer'
-    },
-  ]
 
-  const listRole = [
-    {
-      "id_rol": 1,
-      "nama_role": 'admin'
-    },
-    {
-      "id_rol": 2,
-      "nama_role": 'kasir'
-    },
-  ]
+  useEffect(() => {
+    if(outletList.isSuccess){
+      setListOutlet(outletList.data)
+    }
+
+    if(rolesList.isSuccess){
+      setListRole(rolesList.data?.data?.rows)
+    }
+  }, [outletList, rolesList])
 
   useEffect(() => {
     if (enableAccess) {
@@ -198,7 +186,7 @@ const FormEmployee = ({ cancel }) => {
                 {
                   listOutlet.map((value, key) => {
                     return (
-                      <Option key={key} onClick={() => setOutlet(value)}>{value.nama_outlet}</Option>
+                      <Option key={key} onClick={() => setOutlet(value)}>{value?.nama_outlet}</Option>
                     )
                   })
                 }
@@ -237,7 +225,7 @@ const FormEmployee = ({ cancel }) => {
                     {
                       listRole.map((value, key) => {
                         return (
-                          <Option key={key} onClick={() => setRole(value)}>{value.nama_role}</Option>
+                          <Option key={key} onClick={() => setRole(value)}>{value?.nama_role}</Option>
                         )
                       })
                     }

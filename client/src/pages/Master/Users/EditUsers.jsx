@@ -6,26 +6,38 @@ import {
     Input,
     Button,
     Alert,
+    Select,
+    Option
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { useUpdateusersByIdMutation } from "../../../redux/services/usersApi";
+import { useGetListrolesQuery } from "../../../redux/services/rolesApi";
 
 const EditUsers = ({ cancel, data }) => {
+    const rolesList = useGetListrolesQuery()
 
+    const [listRole, setListRole] = useState([])
+    const [role, setRole] = useState()
     const [formData, setFormData] = useState({
         id_users: data?.id_users,
-        id_rol: data?.id_rol,
         nama: data?.username,
         email: data?.email,
         nohp: data?.nohp,
         password: '__PASSWORD__'
     });
 
-    const { id_users, id_rol, nama, email, nohp, password } = formData
+    const { id_users, nama, email, nohp, password } = formData
 
     const [updateUser, responseUpdate] = useUpdateusersByIdMutation();
+
+    useEffect(() => {
+        if (rolesList.isSuccess) {
+            setListRole(rolesList.data?.data?.rows)
+            setRole(rolesList.data?.data?.rows.filter(value => value.id_rol === data?.id_rol)[0])
+        }
+    }, [rolesList])
 
     useEffect(() => {
         if (responseUpdate.isSuccess) {
@@ -40,13 +52,13 @@ const EditUsers = ({ cancel, data }) => {
 
     const onSubmit = async () => {
         try {
-            if (!nama && !email && !nohp) {
+            if (!nama && !email && !nohp && !role) {
                 toast.dismiss()
                 toast.error("Data Harus Diisi Terlebih Dahulu");
             } else {
                 await updateUser({
                     "id": id_users,
-                    "id_rol": id_rol,
+                    "id_rol": role.id_rol,
                     "username": nama,
                     "password": password,
                     "email": email,
@@ -73,6 +85,15 @@ const EditUsers = ({ cancel, data }) => {
                     </CardHeader>
                     <CardBody>
                         <form className="flex flex-col gap-4 my-4">
+                            <Select label="Role" value={role?.nama_role}>
+                                {
+                                    listRole.map((value, key) => {
+                                        return (
+                                            <Option key={key} onClick={() => setRole(value)}>{value?.nama_role}</Option>
+                                        )
+                                    })
+                                }
+                            </Select>
                             <Input label="Nama" type="text" value={formData.nama} onChange={(event) =>
                                 setFormData({
                                     ...formData,
