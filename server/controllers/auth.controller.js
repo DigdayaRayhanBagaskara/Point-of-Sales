@@ -21,7 +21,9 @@ const login = async (req, res) => {
         replacements: { username: req.body?.username },
         type: sequelize.QueryTypes.SELECT,
       });
-  
+
+      console.log('user --> ', !user)
+
       if (!user) {
         return res.status(401).json({
           status: false,
@@ -35,6 +37,8 @@ const login = async (req, res) => {
         req.body?.password,
         user.password
       );
+
+      // const passwordMatch = req.body?.password === user.password
   
       if (passwordMatch) {
         try {

@@ -51,7 +51,7 @@ const store = async (req, res) => {
       bind: {
         id_rol: param.id_rol,
         username: param.username,
-        password: hashedPassword, // Use the hashed password here
+        password: param.password, // Use the hashed password here
         email: param.email,
         nohp: param.nohp,
         created_at: createdAt,
@@ -214,14 +214,26 @@ const update = async (req, res) => {
     //   replacements: { idrole: parseInt(_ID) }
     // });
 
-    if (userId) {
-      const query = `UPDATE users SET id_rol = $idrole, 
+    let query;
+
+    if (req.body?.password === '__PASSWORD__') {
+      query = `UPDATE users SET id_rol = $idrole, 
+      username = $userName, 
+      email = $email,
+      nohp = $nohp,
+      updated_at = $updateAt
+      WHERE id_users = ${parseInt(userId)}`;
+    } else {
+      query = `UPDATE users SET id_rol = $idrole, 
       username = $userName, 
       password = $pass, 
       email = $email,
       nohp = $nohp,
       updated_at = $updateAt
       WHERE id_users = ${parseInt(userId)}`;
+    }
+
+    if (userId) {
       
       const [result] = await sequelize.query(query, {
         bind: {
