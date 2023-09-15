@@ -1,3 +1,4 @@
+const Sequelize = require('sequelize');
 const { sequelize, db } = require("../models/index.js");
 const { mappingQueryArrayReturn } = require("../helpers/utility.js");
 const multer = require("multer");
@@ -25,6 +26,8 @@ const upload = multer({ storage: storage });
 const get = async (req, res) => {
   try {
     const param = req.query;
+    let id_categories = param?.id_categories || ``;
+    let id_brand = param?.id_brand || ``;
     let keyword = param?.keyword || ``;
     let limit = parseInt(param?.limit) || 5;
     let offset = parseInt(param?.offset) || 0;
@@ -62,10 +65,25 @@ const get = async (req, res) => {
     let query_count = `
     SELECT COUNT(produk.id_produk) as count FROM produk LEFT JOIN outlet ON produk.id_outlet = outlet.id_outlet LEFT JOIN produk_categories ON produk.id_categories = produk_categories.id_categories LEFT JOIN brands_produk ON produk.id_brand = brands_produk.id_brands_produk LEFT JOIN produk_variant ON produk.id_produk = produk_variant.id_produk `;
 
+
+
+    let queryfilterIdCategories = `WHERE produk_categories.id_categories = $id_categories`;
+    let queryfilterIdbrand = `WHERE brands_produk.id_brands_produk = $id_brand`;
+
+
+
     if (keyword.length > 0) {
       let q_keyword = `WHERE produk_name LIKE $keyword`;
       query += q_keyword;
       query_count += q_keyword;
+    }
+
+    if (id_categories !== '' ) {
+      query += queryfilterIdCategories
+    }
+
+    if (id_brand !== '' ) {
+      query += queryfilterIdbrand
     }
     
     if (limit > 0) {
@@ -79,6 +97,8 @@ const get = async (req, res) => {
     const [x] = await sequelize.query(query, {
       bind: {
         keyword: `%${keyword}%`,
+        id_categories: id_categories,
+        id_brand: id_brand,
       },
     });
 
@@ -86,6 +106,8 @@ const get = async (req, res) => {
     const [total_rows] = await sequelize.query(query_count, {
       bind: { keyword: `%${keyword}%` },
     });
+
+
 
 
     const z = await mappingQueryArrayReturn(x);
@@ -260,62 +282,85 @@ const store = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-      const id_produk_variant = req.params.id_produk_variant;
-      const nama_variant = req.body.nama_variant;
+  
 
-      const stok = req.body.stok;
+    const param = req.body;
+    const id_variant = req.body.variants[0].id_produk_variant;
+    const id = req.params.id;
+
+    let set_update = [];
+
+    for (let item in param) {
+      set_update.push(`${item} = $${[item]}` );
+    }
 
 
-      sequelize.query(
-        `SELECT id_produk_variant FROM produk_variant WHERE id_produk_variant = ?`,
-        {
-          replacements: [id_produk_variant],
-          type: Sequelize.QueryTypes.SELECT
-        }
-      ).then(results => {
-        if (results.length > 0) {
-          // Step 2: Jika Ada ID yang Sama, Lakukan Update
-          sequelize.query(
-            `UPDATE produk_variant SET nama_variant = ?, stok = ? WHERE id = ?`,
-            {
-              replacements: [nama_variant, stok, id_produk_variant],
-              type: Sequelize.QueryTypes.UPDATE
-            }
-          ).then(updatedResult => {
-            console.log('Data produk_variant berhasil diupdate');
-          }).catch(error => {
-            console.error(error);
-            res.status(500).send('Terjadi kesalahan saat melakukan operasi UPDATE pada produk_variant');
-          });
-        } else {
+    let sq = `SELECT id_produk_variant FROM produk_variant`;
 
-          sequelize.query(
-            `INSERT INTO produk_variant () VALUES (?, ?, ?)`,
-            {
-              replacements: [id_produk_variant, nama_variant, stok],
-              type: Sequelize.QueryTypes.INSERT
-            }
-          ).then(insertedResult => {
-            console.log('Data produk_variant berhasil diinsert');
-          }).catch(error => {
-            console.error(error);
-            res.status(500).send('Terjadi kesalahan saat melakukan operasi INSERT pada produk_variant');
-          });
-        }
+    const select = await sequelize.query(sq, {
+      type: Sequelize.QueryTypes.SELECT
+    })
 
-        sequelize.query(
-          `DELETE FROM produk_variant WHERE id NOT IN (?)`,
-          {
-            replacements: [id_produk_variant],
-            type: Sequelize.QueryTypes.DELETE
-          }
-      ).then(deletedResult => {
-        console.log('Data yang tidak ada dalam parameter berhasil dihapus');
-      }).catch(error => {
-        console.error(error);
-        res.status(500).send('Terjadi kesalahan saat melakukan operasi DELETE pada produk_variant');
-      });
-    });
+    // const arr = [].concat(select)
+
+    param["id_variant_database"] = select;
+    // let final = arr.concat(variant);
+
+  //   const arrayToObject = (array) =>
+  //   array.reduce((obj, item) => {
+  //     obj[item.id_produk_variant] = item
+  //     return obj
+  //   }, {})
+  
+  // console.log(arrayToObject(param.variants))
+  
+  // const newData = param?.body?.id_variant_database?.map(item => {
+  //   return {
+  //     data: item.id_produk_variant.arrayToObject(param?.body?.id_variant_database)[i]
+  //   }
+  // })
+  
+  // console.log(newData)
+
+
+
+    // if (set_update.length) {
+      
+    //   if (variant) {
+    //     let query = `UPDATE produk SET ${set_update} WHERE id_produk = $id`;
+
+    //     const [result_id] = await sequelize.query(query, {
+    //       bind: { id: id, variant,  ...param},
+    //     });
+
+
+    //     const update_variants = param?.variants.map((row) => {
+    //       row.id_produk = result_id;
+    //       return row;
+    //     });
+  
+    //     console.log(update);
+    
+    //     db.produk_variant.bulkCreate(update_variants);
+    //   }
+
+
+
+    //   res.status(201).json({
+    //     status: true,
+    //     message: "SUCCESS UBAH DATA BRANDS PRODUK",
+    //     data: { id: id, ...param },
+    //   });
+    // } else {
+    //   res.status(500).json({
+    //     status: false,
+    //     message: "DATA BRANDS PRODUK YANG DITUJU TIDAK ADA",
+    //   });
+    // }
+
+
+
+   
 
   } catch (err) {
     let validationError = JSON.parse(JSON.stringify(err))?.original;
