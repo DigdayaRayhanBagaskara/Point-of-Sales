@@ -4,46 +4,38 @@ import { serialize } from "../../utility/helpers";
 export const salesreportApi = createApi({
   reducerPath: "salesreportApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/api",
+    baseUrl: "/api/sales-report",
   }),
   endpoints: (builder) => ({
-    getListsalesreport: builder.query({
-      query: (params) => `salesreport?${serialize(params)}`,
+    getSRSalesSummary: builder.query({
+      query: (params) => `/sales-summary?${serialize(params)}`,
     }),
-
-    getsalesreportById: builder.query({
-      query: (params) => `salesreport/${params?.id}`,
+    getSRGrossProfit: builder.query({
+      query: (params) => `/gross-profit?${serialize(params)}`,
     }),
-
-    addsalesreport: builder.mutation({
-      query: (params) => ({
-        url: `salesreport`,
-        method: "POST",
-        body: params,
-      }),
+    getSRItemSales: builder.query({
+      query: (params) => `/item-sales?${serialize(params)}`,
     }),
-
-    updatesalesreportById: builder.mutation({
-      query: (params) => ({
-        url: `salesreport/${params.id}`,
-        method: "PUT",
-        body: params,
-      }),
+    getSRCategorySales: builder.query({
+      query: (params) => `/category-sales?${serialize(params)}`,
     }),
-
-    deletesalesreportById: builder.mutation({
-      query: (params) => ({
-        url: `salesreport/${params.id}`,
-        method: "DELETE",
-      }),
+    getSRBrandSales: builder.query({
+      query: (params) => `/brand-sales?${serialize(params)}`,
     }),
+    getSRDiscountSales: builder.query({
+      query: (params) => `/discount-sales?${serialize(params)}`,
+    }),
+    
+    
+    
   }),
 });
 
 export const {
-  useGetListsalesreportQuery,
-  useGetsalesreportByIdQuery,
-  useAddsalesreportMutation,
-  useUpdatesalesreportByIdMutation,
-  useDeletesalesreportByIdMutation,
+  useGetSRGrossProfitQuery,
+  useGetSRSalesSummaryQuery,
+  useGetSRItemSalesQuery,
+  useGetSRCategorySalesQuery,
+  useGetSRBrandSalesQuery,
+  useGetSRDiscountSalesQuery,
 } = salesreportApi;

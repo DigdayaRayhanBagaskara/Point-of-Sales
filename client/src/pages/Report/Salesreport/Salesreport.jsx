@@ -1,29 +1,37 @@
 /* eslint-disable no-unused-vars */
-import { Button, Card, CardHeader, Typography } from "@material-tailwind/react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Typography,
+} from "@material-tailwind/react";
 
-import Table from "../../../components/Table";
+import { Outlet } from "react-router-dom";
 
-import { NavLink } from "react-router-dom";
-import { UserPlusIcon } from "@heroicons/react/24/solid";
+import SidebarSR from "./component/SidebarSR";
 
 const Salesreport = () => {
   return (
     <>
-      <div className="ml-2 pt-5s mx-auto mb-auto h-full min-h-[70vh] p-2 md:pr-2">
+      <div className="ml-2 pt-5 mx-auto mb-auto h-full min-h-[70vh] p-2 md:pr-2">
         <Card className="h-full w-full">
           <CardHeader floated={false} shadow={false} className="rounded-none">
-            <div className="mb-8 flex items-center justify-between gap-8">
+            <div className="flex items-center justify-between gap-8">
               <div>
                 <Typography variant="h5" color="blue-gray">
                   Sales Report
                 </Typography>
-                <Typography color="gray" className="mt-1 font-normal">
-                  See information about all members
-                </Typography>
               </div>
             </div>
           </CardHeader>
-          {/* <Table /> */}
+          <CardBody>
+            <div className="flex h-full w-full gap-2">
+              <SidebarSR />
+              <div className="h-full w-full">
+                <Outlet />
+              </div>
+            </div>
+          </CardBody>
         </Card>
       </div>
     </>

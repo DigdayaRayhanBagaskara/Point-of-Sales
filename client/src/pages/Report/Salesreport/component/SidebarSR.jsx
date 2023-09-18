@@ -28,24 +28,44 @@ const SidebarSR = () => {
   };
   return (
     <>
-      <Card className=" w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
+      <Card className="border border-gray-500 rounded w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
         <List>
-          <ListItem>
-            <ListItemPrefix>
-              <PresentationChartBarIcon className="h-5 w-5" />
-            </ListItemPrefix>
             <NavLink to="sales-summary" className="flex items-center">
-              Sales Summary
+              <ListItem>
+                  Sales Summary
+              </ListItem>
             </NavLink>
-          </ListItem>
-          <ListItem>
-            <ListItemPrefix>
-              <PresentationChartBarIcon className="h-5 w-5" />
-            </ListItemPrefix>
+          <hr className="bg-gray-500 pt-[1px]" />
             <NavLink to="gross-profit" className="flex items-center">
-              Gross Profit
+              <ListItem>
+                  Gross Profit
+              </ListItem>
             </NavLink>
-          </ListItem>
+          <hr className="bg-gray-500 pt-[1px] " />
+            <NavLink to="item-sales" className="flex items-center">
+              <ListItem>
+                  Item Sales
+              </ListItem>
+            </NavLink>
+          <hr className="bg-gray-500 pt-[1px] " />
+            <NavLink to="category-sales" className="flex items-center">
+              <ListItem>
+                  Category Sales
+              </ListItem>
+            </NavLink>
+          <hr className="bg-gray-500 pt-[1px] " />
+            <NavLink to="brand-sales" className="flex items-center">
+              <ListItem>
+                  Brand Sales
+              </ListItem>
+            </NavLink>
+          <hr className="bg-gray-500 pt-[1px] " />
+            <NavLink to="discount-sales" className="flex items-center">
+              <ListItem>
+                  Discount
+              </ListItem>
+            </NavLink>
+          <hr className="bg-gray-500 pt-[1px] " />
         </List>
       </Card>
     </>

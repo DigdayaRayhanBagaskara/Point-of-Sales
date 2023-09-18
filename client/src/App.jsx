@@ -11,6 +11,18 @@ const SalesSummary = lazy(() =>
 const GrossProfit = lazy(() =>
   import("./pages/Report/Salesreport/component/GrossProfit")
 );
+const ItemSales = lazy(() =>
+  import("./pages/Report/Salesreport/component/ItemSales")
+);
+const CategorySales = lazy(() =>
+  import("./pages/Report/Salesreport/component/CategorySales")
+);
+const BrandSales = lazy(() =>
+import("./pages/Report/Salesreport/component/BrandSales")
+);
+const DiscountSales = lazy(() =>
+  import("./pages/Report/Salesreport/component/DiscountSales")
+);
 
 const RequireAuth = lazy(() =>
   import("./pages/Auth/authComponents/RequireAuth")
@@ -102,6 +114,10 @@ const App = () => {
                 <Route index element={<SalesSummary />} />
                 <Route path="/sales-report/sales-summary" element={<SalesSummary />} />
                 <Route path="/sales-report/gross-profit" element={<GrossProfit />} />
+                <Route path="/sales-report/item-sales" element={<ItemSales />} />
+                <Route path="/sales-report/category-sales" element={<CategorySales />} />
+                <Route path="/sales-report/brand-sales" element={<BrandSales />} />
+                <Route path="/sales-report/discount-sales" element={<DiscountSales />} />
               </Route>
 
               <Route path="/transaction-report" element={<TransactionReport />} />
