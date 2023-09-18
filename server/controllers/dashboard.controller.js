@@ -57,11 +57,10 @@ const netSales = async (req, res) => {
       : finish_date;
     let query = `
     SELECT
-      SUM(transaksi.total_harga - (transaksi_detail.jumlah_produk * produk_variant.harga_modal)) as net_sales
+      SUM(transaksi.total_harga - discount.amount) as net_sales
     FROM
       transaksi
-    INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
-    INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+    LEFT JOIN discount ON transaksi.id_discount = discount.id_discount
     WHERE 
       transaksi.tgl_transaksi BETWEEN $start_date AND $end_date
     `;

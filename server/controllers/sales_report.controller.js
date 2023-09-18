@@ -1,119 +1,385 @@
 const { mappingQueryArrayReturn } = require("../helpers/utility.js");
 const { sequelize } = require("../models/index.js");
-const moment = require("moment");
+const moment = require('moment');
+const excelJs = require('exceljs');
 
-const salesReport = async (req, res) => {
+const salesSummary = async (req, res) => {
   try{
     const param = req.query;
-    const dateNow = moment().format("YYYY-MM-DD");
-    // moment(tanggal).format('YYYY-MM-DD');
 
-    let keyword = param?.keyword || "";
-    let limit = parseInt(param?.limit) || 5;
-    let offset = parseInt(param?.offset) || 0;
-    let startDate = param?.start_date
-      ? moment(param?.start_date).format("YYYY-MM-DD")
-      : dateNow;
-    let endDate = param?.end_date
-      ? moment(param?.end_date).format("YYYY-MM-DD")
-      : dateNow;
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
 
     // Start Query untuk menampilkan seluruh data
-    let query = `
+      let query = `
       SELECT
-        transaksi.*, 
-        discount.id_discount AS 'discount.id_discount' ,
-        discount.discount_names AS 'discount.discount_names' ,
-        discount.discount_type AS 'discount.discount_type' ,
-        discount.amount AS 'discount.amount' ,
-        discount.persen AS 'discount.persen' ,
-        discount.expired AS 'discount.expired' ,
-        transaksi_detail.id_transaksi_detail AS 'transaksi_detail.id_transaksi_detail' ,
-        transaksi_detail.id_transaksi AS 'transaksi_detail.id_transaksi' ,
-        transaksi_detail.id_produk AS 'transaksi_detail.id_produk' ,
-        transaksi_detail.total_harga_produk AS 'transaksi_detail.total_harga_produk' ,
-        transaksi_detail.jumlah_produk AS 'transaksi_detail.jumlah_produk',
-        produk.id_produk AS 'transaksi_detail.produk_id_produk',
-        produk.id_outlet AS 'transaksi_detail.produk_id_outlet',
-        produk.id_categories AS 'transaksi_detail.produk_id_categories',
-        produk.id_brand AS 'transaksi_detail.produk_id_brand',
-        produk.produk_name AS 'transaksi_detail.produk_produk_name',
-        produk.gambar_produk AS 'transaksi_detail.produk_gambar_produk',
-        produk.desc AS 'transaksi_detail.produk_produk.desc'
+        SUM(transaksi.total_harga) as gross_sales,
+        SUM(discount.amount) as discount,
+        SUM(transaksi.total_harga - discount.amount) as net_sales
       FROM
         transaksi
-      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
-      INNER JOIN produk ON produk.id_produk = transaksi_detail.id_produk
       LEFT JOIN discount ON transaksi.id_discount = discount.id_discount
       WHERE
-        transaksi.tgl_transaksi BETWEEN $startDate AND $endDate 
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
       `;
 
-    if (keyword.length > 0) {
-      query += ` 
-        AND (
-        transaksi.nomor_transaksi LIKE $keyword OR
-        transaksi.nama_pelanggan LIKE $keyword OR
-        produk.produk_name LIKE $keyword
-        )`;
-    }
-
-    if (limit > 0) {
-      query += " LIMIT " + limit;
-    }
-
-    if (offset >= 0) {
-      query += " OFFSET " + offset;
-    }
-
-    const [x] = await sequelize.query(query, {
-      bind: { startDate: startDate, endDate: endDate, keyword: `%${keyword}%` },
-    });
-
-    const z = await mappingQueryArrayReturn(x);
-    let rows = [];
-    for (let row of z) {
-      if (row.discount.length == 1) {
-        row.discount = row.discount.length == 0 ? {} : row.discount[0];
-      }
-      if (row.transaksi_detail.length == 1) {
-        row.transaksi_detail =
-          row.transaksi_detail.length == 0 ? {} : row.transaksi_detail[0];
-      }
-      rows.push(row);
-    }
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
     // End Query untuk menampilkan seluruh data
 
     // Start Query untuk menghitung jumlah seluruh data
-    let countQuery = `
+      let countQuery = `
         SELECT 
           COUNT(transaksi.id_transaksi) AS count
-        FROM transaksi 
-        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
-        INNER JOIN produk ON produk.id_produk = transaksi_detail.id_produk
+        FROM 
+          transaksi
+        LEFT JOIN discount ON transaksi.id_discount = discount.id_discount 
         WHERE
-          transaksi.tgl_transaksi BETWEEN $startDate AND $endDate `;
-    if (keyword.length > 0) {
-      countQuery += ` 
-        AND (
-          transaksi.nomor_transaksi LIKE $keyword OR
-          transaksi.nama_pelanggan LIKE $keyword OR
-          produk.produk_name LIKE $keyword
-        )`;
-    }
-    const [count] = await sequelize.query(countQuery, {
-      bind: { startDate: startDate, endDate: endDate, keyword: `%${keyword}%` },
-    });
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
     // End Query untuk menghitung jumlah seluruh data
 
     res.status(200).json({
       status: true,
       data: {
         count: count[0] ? count[0].count : 0,
-        limit: limit,
-        offset: offset,
-        rows: rows,
-      },
+        rows: rows, 
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+const grossProfit = async (req, res) => {
+  try{
+    const param = req.query;
+
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
+
+    // Start Query untuk menampilkan seluruh data
+      let query = `
+      SELECT
+        SUM(transaksi.total_harga) as gross_sales,
+        SUM(discount.amount) as discount,
+        SUM(transaksi_detail.jumlah_produk * produk_variant.harga_modal) as modal,
+        SUM(transaksi.total_harga - discount.amount - (transaksi_detail.jumlah_produk * produk_variant.harga_modal)) as profit
+      FROM
+        transaksi
+      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+      INNER JOIN produk_variant ON transaksi_detail.id_produk_variant = produk_variant.id_produk_variant
+      LEFT JOIN discount ON transaksi.id_discount = discount.id_discount
+      WHERE
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+      `;
+
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
+    // End Query untuk menampilkan seluruh data
+
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `
+        SELECT 
+          COUNT(transaksi.id_transaksi) AS count
+        FROM 
+          transaksi
+        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+        INNER JOIN produk_variant ON transaksi_detail.id_produk_variant = produk_variant.id_produk_variant
+        LEFT JOIN discount ON transaksi.id_discount = discount.id_discount
+        WHERE
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+
+    res.status(200).json({
+      status: true,
+      data: {
+        count: count[0] ? count[0].count : 0,
+        rows: rows, 
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+const itemSales = async (req, res) => {
+  try{
+    const param = req.query;
+
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
+
+    // Start Query untuk menampilkan seluruh data
+      let query = `
+      SELECT
+        produk.produk_name as produk_name,
+        SUM(transaksi.total_harga) as gross_sales,
+        SUM(transaksi_detail.jumlah_produk) as jumlah
+      FROM
+        transaksi
+      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+      INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+      INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+      WHERE
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+      GROUP BY
+        produk.id_produk
+      ORDER BY
+        jumlah
+      DESC
+      `;
+
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
+    // End Query untuk menampilkan seluruh data
+
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `
+        SELECT 
+          COUNT(produk.id_produk) AS count
+        FROM
+          transaksi
+        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+        INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+        INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+        WHERE
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+        GROUP BY
+          produk.id_produk
+        `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+
+    res.status(200).json({
+      status: true,
+      data: {
+        count: count[0] ? count[0].count : 0,
+        rows: rows, 
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+const categorySales = async (req, res) => {
+  try{
+    const param = req.query;
+
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
+
+    // Start Query untuk menampilkan seluruh data
+      let query = `
+      SELECT
+        produk_categories.categories_name as categories_name,
+        SUM(transaksi_detail.jumlah_produk) as jumlah,
+        SUM(transaksi.total_harga) as gross_sales
+      FROM
+        transaksi
+      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+      INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+      INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+      INNER JOIN produk_categories ON produk_categories.id_categories = produk.id_categories
+      WHERE
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+      GROUP BY
+        produk_categories.id_categories
+      ORDER BY
+        jumlah
+      DESC
+      `;
+
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
+    // End Query untuk menampilkan seluruh data
+
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `
+        SELECT 
+          COUNT(produk_categories.id_categories) AS count
+        FROM
+          transaksi
+        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+        INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+        INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+        INNER JOIN produk_categories ON produk_categories.id_categories = produk.id_categories
+        WHERE
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+        GROUP BY
+          produk_categories.id_categories
+        `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+
+    res.status(200).json({
+      status: true,
+      data: {
+        count: count[0] ? count[0].count : 0,
+        rows: rows, 
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+const brandSales = async (req, res) => {
+  try{
+    const param = req.query;
+
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
+
+    // Start Query untuk menampilkan seluruh data
+      let query = `
+      SELECT
+        brands_produk.brand_name as brand_name,
+        SUM(transaksi_detail.jumlah_produk) as jumlah,
+        SUM(transaksi.total_harga) as gross_sales
+      FROM
+        transaksi
+      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+      INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+      INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+      INNER JOIN brands_produk ON brands_produk.id_brands_produk = produk.id_brand
+      WHERE
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+      GROUP BY
+        brands_produk.id_brands_produk
+      ORDER BY
+        jumlah
+      DESC
+      `;
+
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
+    // End Query untuk menampilkan seluruh data
+
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `
+        SELECT 
+          COUNT(brands_produk.id_brands_produk) AS count
+        FROM
+          transaksi
+        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+        INNER JOIN produk_variant ON produk_variant.id_produk_variant = transaksi_detail.id_produk_variant
+        INNER JOIN produk ON produk.id_produk = produk_variant.id_produk
+        INNER JOIN brands_produk ON brands_produk.id_brands_produk = produk.id_brand
+        WHERE
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+        GROUP BY
+          brands_produk.id_brands_produk
+        `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+
+    res.status(200).json({
+      status: true,
+      data: {
+        count: count[0] ? count[0].count : 0,
+        rows: rows, 
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+const discountSales = async (req, res) => {
+  try{
+    const param = req.query;
+
+    let start_date = param?.start_date ? moment(param?.start_date).format('YYYY-MM-DD') : moment().startOf("month").format("YYYY-MM-DD");
+    let end_date = param?.end_date ? moment(param?.end_date).format('YYYY-MM-DD') : moment().endOf("month").format("YYYY-MM-DD");
+
+    // Start Query untuk menampilkan seluruh data
+      let query = `
+      SELECT
+        discount.discount_names as discount_names,
+        SUM(transaksi_detail.jumlah_produk) as jumlah,
+        SUM(transaksi.total_harga) as gross_sales
+      FROM
+        transaksi
+      INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+      LEFT JOIN discount ON discount.id_discount = transaksi.id_discount
+      WHERE
+        transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+      GROUP BY
+        discount.id_discount
+      ORDER BY
+        jumlah
+      DESC
+      `;
+
+      const [rows] = await sequelize.query(query, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+      
+    // End Query untuk menampilkan seluruh data
+
+    // Start Query untuk menghitung jumlah seluruh data
+      let countQuery = `
+        SELECT 
+          COUNT(discount.id_discount) AS count
+        FROM
+          transaksi
+        INNER JOIN transaksi_detail ON transaksi_detail.id_transaksi = transaksi.id_transaksi
+        LEFT JOIN discount ON discount.id_discount = transaksi.id_discount
+        WHERE
+          transaksi.tgl_transaksi BETWEEN $start_date AND $end_date 
+        GROUP BY
+          discount.id_discount
+        `;
+
+      const [count] = await sequelize.query(countQuery, {
+        bind : { start_date : start_date, end_date : end_date }
+      });
+    // End Query untuk menghitung jumlah seluruh data
+
+    res.status(200).json({
+      status: true,
+      data: {
+        count: count[0] ? count[0].count : 0,
+        rows: rows, 
+      }
     });
   } catch (err) {
     res.status(500).json({
@@ -124,5 +390,10 @@ const salesReport = async (req, res) => {
 };
 
 module.exports = {
-    salesReport,
+    salesSummary,
+    grossProfit,
+    itemSales,
+    categorySales,
+    brandSales,
+    discountSales,
 };
