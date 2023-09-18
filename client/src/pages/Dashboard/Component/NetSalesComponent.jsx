@@ -3,9 +3,9 @@ import { useGetNetSalesDashboardQuery } from "../../../redux/services/dashboardA
 
 const NetSalesComponent = ({params}) => {
     const netSalesQuery = useGetNetSalesDashboardQuery({
-        id_outlet: params.id_outlet,
-        start_date: params.start_date,
-        end_date: params.end_date,
+        // id_outlet: params.id_outlet,
+        start_date:  params?.startDate,
+        end_date: params?.endDate,
     });
     let netSales = netSalesQuery?.data?.data?.net_sales ? netSalesQuery?.data?.data?.net_sales?.toLocaleString('id-ID') : 0;
     return (

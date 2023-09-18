@@ -4,8 +4,8 @@ import { useGetCountTransactionDashboardQuery } from "../../../redux/services/da
 const CountTransactionComponent = ({params}) => {
     const countTransactionQuery = useGetCountTransactionDashboardQuery({
         id_outlet: params.id_outlet,
-        start_date: params.start_date,
-        end_date: params.end_date,
+        start_date:  params?.startDate,
+        end_date: params?.endDate,
     });
     let countTransaction = countTransactionQuery?.data?.data?.count_transaction ? countTransactionQuery?.data?.data?.count_transaction : 0;
     return (

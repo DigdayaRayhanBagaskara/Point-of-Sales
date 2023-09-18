@@ -6,8 +6,8 @@ import { useGetTopItemByVolumeDashboardQuery } from "../../../redux/services/das
 const TopItemByVolumeComponent = ({params}) => {
     const topItemByVolumeQuery = useGetTopItemByVolumeDashboardQuery({
         id_outlet: params.id_outlet,
-        start_date: params.start_date,
-        end_date: params.end_date,
+        start_date:  params?.startDate,
+        end_date: params?.endDate,
     });
     ChartJs.register( ArcElement, Tooltip, Legend); 
     const x = topItemByVolumeQuery?.data?.data || 0 ;

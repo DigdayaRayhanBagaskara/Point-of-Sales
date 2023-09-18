@@ -5,8 +5,8 @@ import Table from "./TableComponent";
 const TopItemComponent = ({ params }) => {
   const topItemQuery = useGetTopItemDashboardQuery({
     id_outlet: params.id_outlet,
-    start_date: params.start_date,
-    end_date: params.end_date,
+    start_date:  params?.startDate,
+    end_date: params?.endDate,
   });
   const TABLE_HEAD = [
     {

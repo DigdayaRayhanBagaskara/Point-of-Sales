@@ -11,7 +11,7 @@ const HourlyGrossSalesAmountComponent = () => {
 
     // Mengisi nilai grossSales sesuai dengan jam yang sesuai
     for (const key in x) {
-        const index = parseInt(key) - 1;
+        const index = parseInt(key);
         if (index >= 0 && index < grossSales.length) {
             grossSales[index] = x[key];
         }
