@@ -15,7 +15,7 @@ const login = async (req, res) => {
   
     try {
       // const query = `SELECT * FROM users WHERE username = :username`
-      let query = `SELECT * FROM users WHERE username = :username`;
+      let query = `SELECT * FROM users WHERE username = :username OR email = :username OR nohp = :username`;
   
       const [user] = await sequelize.query(query, {
         replacements: { username: req.body?.username },
@@ -44,11 +44,9 @@ const login = async (req, res) => {
         try {
           // add last login when user has logged in
           const lastLogin = moment().format('YYYY-MM-DD HH:mm:ss');
-          const query1 = 'SELECT id_users FROM users WHERE username = $userName'
+          const query1 = 'SELECT id_users FROM users WHERE username = $userName OR email = $userName OR nohp = $userName'
           let [result] = await sequelize.query(query1, {
-            bind: {
-              userName: req.body?.username
-            }
+            bind: { userName: req.body?.username }
           });
           console.log('result', result[0])
 

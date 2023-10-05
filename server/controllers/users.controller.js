@@ -24,14 +24,84 @@ const store = async (req, res) => {
   try {
     const param = req.body;
 
-    let check_user_existence = `SELECT * FROM users WHERE email = $email`;
+    if (param.name.length) { 
+      if (param.name.length >= 128) {
+        return res.status(400).json({ message: "Names can only be under 128 characters!" });
+      }
+      if (!/^[a-zA-Z\s]+$/.test(param.name)) {
+        return res.status(400).json({ message: "Name can only contain alphabets and spaces!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Name cannot be empty and must be filled in!" });
+    }
+
+    if (param.username.length) { 
+      if (param.username.length >= 128) {
+        return res.status(400).json({ message: "Username can only be under 128 characters!" });
+      }
+      if (!/^[a-zA-Z0-9_.-]+$/.test(param.username)) {
+        return res.status(400).json({ message: "Username can only contain letters of the alphabet, numbers, '.', '_', or '-'!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Username cannot be empty and must be filled in!" });
+    }
+    
+    if (param.email.length) { 
+      if (param.email.length >= 319) {
+        return res.status(400).json({ message: "Email can only be under 319 characters!" });
+      }
+      if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(param.email)) {
+        return res.status(400).json({ message: "Email can only be in email format! [name]@[domain].[tld]" });
+      }
+    } else{
+      return res.status(400).json({ message: "Email cannot be empty and must be filled in!" });
+    }
+
+    if (param.nohp.length) { 
+      if (param.nohp.length < 8) {
+        return res.status(400).json({ message: "No. HP can only be upper 8 and under 20 characters!" });
+      }
+      if (param.nohp.length > 20) {
+        return res.status(400).json({ message: "No. HP can only be upper 8 and under 20 characters!" });
+      }
+      if (!/^[0-9]+$/.test(param.nohp)) {
+        return res.status(400).json({ message: "No. HP can only contain numeric!" });
+      }
+    } else{
+      return res.status(400).json({ message: "No. HP cannot be empty and must be filled in!" });
+    }
+
+    if (param.password.length) { 
+      if (param.password.length < 4) {
+        return res.status(400).json({ message: "Password can only be upper 4 and under 100 characters!" });
+      }
+      if (param.password.length > 100) {
+        return res.status(400).json({ message: "Password can only be upper 4 and under 100 characters!" });
+      }
+      if (!/^[a-zA-Z0-9]+$/.test(param.password)) {
+        return res.status(400).json({ message: "Password can only contain alphabets and numeric!" });
+      }
+      if (!/[a-z]/.test(param.password) || !/[A-Z]/.test(param.password)) {
+        return res.status(400).json({ message: "Password must contain at least 1 lowercase character and 1 uppercase character!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Password cannot be empty and must be filled in!" });
+    }
+
+    let check_user_existence = `SELECT * FROM users WHERE email = $email OR nohp = $nohp OR username = $username`;
     const [users] = await sequelize.query(check_user_existence, {
-      bind: { email: param.email },
+      bind: { email: param.email, nohp: param.nohp,  username: param.username,},
       type: sequelize.QueryTypes.SELECT,
     });
 
-    if (users) {
-      return res.status(400).json({ message: 'USER IS ALREADY EXIST' });
+    if (users?.username == param.username ) {
+      return res.status(400).json({ message: "Username already exist! Please use other username!" });
+    }
+    if (users?.email == param.email ) {
+      return res.status(400).json({ message: "Email already exist! Please use other email!" });
+    }
+    if (users?.nohp == param.nohp ) {
+      return res.status(400).json({ message: "No. HP already exist! Please use other No. HP!" });
     }
 
     // Hash password using bcrypt
@@ -42,14 +112,15 @@ const store = async (req, res) => {
     const lastLogin = createdAt;
 
     let query = `INSERT INTO users (
-      id_rol, username, password, email, nohp, created_at, updated_at, last_login
+      id_rol, name, username, password, email, nohp, created_at, updated_at, last_login
     ) VALUES (
-      $id_rol, $username, $password, $email, $nohp, $created_at, $updated_at, $last_login
+      $id_rol, $name, $username, $password, $email, $nohp, $created_at, $updated_at, $last_login
     )`;
 
     const [result_id] = await sequelize.query(query, {
       bind: {
         id_rol: param.id_rol,
+        name: param.name,
         username: param.username,
         password: hashedPassword, // Use the hashed password here
         email: param.email,
@@ -100,6 +171,7 @@ const get = async (req, res) => {
       if (keyword.length > 0) {
         query += ` 
           WHERE 
+            name LIKE $keyword OR
             username LIKE $keyword OR
             email LIKE $keyword OR
             nohp LIKE $keyword 
@@ -125,6 +197,7 @@ const get = async (req, res) => {
       if (keyword.length > 0) {
         countQuery += ` 
         WHERE 
+            name LIKE $keyword OR
             username LIKE $keyword OR
             email LIKE $keyword OR
             nohp LIKE $keyword 
@@ -200,10 +273,76 @@ const update = async (req, res) => {
   try {
     const userId  = req.params.id;
 
+    if (req.body?.name.length) { 
+      if (req.body?.name.length >= 128) {
+        return res.status(400).json({ message: "Names can only be under 128 characters!" });
+      }
+      if (!/^[a-zA-Z\s]+$/.test(req.body?.name)) {
+        return res.status(400).json({ message: "Name can only contain alphabets and spaces!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Name cannot be empty and must be filled in!" });
+    }
+
+    if (req.body?.username.length) { 
+      if (req.body?.username.length >= 128) {
+        return res.status(400).json({ message: "Username can only be under 128 characters!" });
+      }
+      if (!/^[a-zA-Z0-9_.-]+$/.test(req.body?.username)) {
+        return res.status(400).json({ message: "Username can only contain letters of the alphabet, numbers, '.', '_', or '-'!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Username cannot be empty and must be filled in!" });
+    }
+    
+    if (req.body?.email.length) { 
+      if (req.body?.email.length >= 319) {
+        return res.status(400).json({ message: "Email can only be under 319 characters!" });
+      }
+      if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(req.body?.email)) {
+        return res.status(400).json({ message: "Email can only be in email format! [name]@[domain].[tld]" });
+      }
+    } else{
+      return res.status(400).json({ message: "Email cannot be empty and must be filled in!" });
+    }
+
+    if (req.body?.nohp.length) { 
+      if (req.body?.nohp.length < 8) {
+        return res.status(400).json({ message: "No. HP can only be upper 8 and under 20 characters!" });
+      }
+      if (req.body?.nohp.length > 20) {
+        return res.status(400).json({ message: "No. HP can only be upper 8 and under 20 characters!" });
+      }
+      if (!/^[0-9]+$/.test(req.body?.nohp)) {
+        return res.status(400).json({ message: "No. HP can only contain numeric!" });
+      }
+    } else{
+      return res.status(400).json({ message: "No. HP cannot be empty and must be filled in!" });
+    }
+
+    if (req.body?.password.length) { 
+      if (req.body?.password.length < 4) {
+        return res.status(400).json({ message: "Password can only be upper 4 and under 100 characters!" });
+      }
+      if (req.body?.password.length > 100) {
+        return res.status(400).json({ message: "Password can only be upper 4 and under 100 characters!" });
+      }
+      if (!/^[a-zA-Z0-9]+$/.test(req.body?.password)) {
+        return res.status(400).json({ message: "Password can only contain alphabets and numeric!" });
+      }
+      if (!/[a-z]/.test(req.body?.password) || !/[A-Z]/.test(req.body?.password)) {
+        return res.status(400).json({ message: "Password must contain at least 1 lowercase character and 1 uppercase character!" });
+      }
+    } else{
+      return res.status(400).json({ message: "Password cannot be empty and must be filled in!" });
+    }
+    
+
     // let query = `SELECT * FROM users WHERE id_users = :iduser`;
     // const [user] = await sequelize.query(query, {
     //   replacements: { iduser: userId }
     // });
+
 
     // Hash password using bcrypt
     const hashedPassword = await bcrypt.hash(req.body?.password, 10);
@@ -214,10 +353,29 @@ const update = async (req, res) => {
     //   replacements: { idrole: parseInt(_ID) }
     // });
 
+    let check_user_existence = `SELECT * FROM users WHERE email = $email OR nohp = $nohp OR username = $username`;
+    const [users] = await sequelize.query(check_user_existence, {
+      bind: { email: req.body?.email, nohp: req.body?.nohp,  username: req.body?.username,},
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    if(users?.id_users != userId){
+      if (users?.username == req.body?.username ) {
+        return res.status(400).json({ message: "Username already exist! Please use other username!" });
+      }
+      if (users?.email == req.body?.email ) {
+        return res.status(400).json({ message: "Email already exist! Please use other email!" });
+      }
+      if (users?.nohp == req.body?.nohp ) {
+        return res.status(400).json({ message: "No. HP already exist! Please use other No. HP!" });
+      }
+    }
+
     let query;
 
     if (req.body?.password === '__PASSWORD__') {
       query = `UPDATE users SET id_rol = $idrole, 
+      name = $name, 
       username = $userName, 
       email = $email,
       nohp = $nohp,
@@ -226,6 +384,7 @@ const update = async (req, res) => {
     } else
      {
       query = `UPDATE users SET id_rol = $idrole, 
+      name = $name, 
       username = $userName, 
       password = $pass, 
       email = $email,
@@ -239,6 +398,7 @@ const update = async (req, res) => {
       const [result] = await sequelize.query(query, {
         bind: {
           idrole: req.body?.id_rol,
+          name: req.body?.name,
           userName: req.body?.username,
           pass: hashedPassword,
           email: req.body?.email,
@@ -246,6 +406,7 @@ const update = async (req, res) => {
           updateAt: updateat
         }
       });
+      
 
       if (result.affectedRows > 0) {
         res.status(200).json({
