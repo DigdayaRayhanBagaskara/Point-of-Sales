@@ -306,24 +306,24 @@ CREATE TABLE `transaksi_detail`  (
 -- Table structure for users
 -- ----------------------------
 DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users`  (
-  `id_users` int NOT NULL AUTO_INCREMENT,
-  `id_rol` int NULL DEFAULT NULL,
-  `username` varchar(100)  NULL DEFAULT NULL,
-  `password` varchar(255)  NULL DEFAULT NULL,
-  `email` varchar(100)  NULL DEFAULT NULL,
-  `nohp` varchar(100)  NULL DEFAULT NULL,
-  `created_at` datetime NULL DEFAULT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
-  `last_login` datetime NULL DEFAULT NULL,
+CREATE TABLE `users` (
+  `id_users` int(11) NOT NULL AUTO_INCREMENT,
+  `id_rol` int(11) DEFAULT NULL,
+  `name` varchar(128) DEFAULT NULL,
+  `username` varchar(128) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `email` varchar(319) DEFAULT NULL,
+  `nohp` varchar(20) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `last_login` datetime DEFAULT NULL,
   PRIMARY KEY (`id_users`) USING BTREE,
-  INDEX `FK_role_id`(`id_rol` ASC) USING BTREE,
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `role` (`id_rol`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 4  ROW_FORMAT = DYNAMIC;
+  KEY `FK_role_id` (`id_rol`) USING BTREE,
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `role` (`id_rol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- ----------------------------
--- Records of users
--- ----------------------------
-INSERT INTO `users` VALUES (1, 2, 'rere', '123', 'rere@gmail.com', '084525632', '2023-08-30 23:47:05', '2023-08-23 23:47:10', '2023-08-15 23:47:13');
-
+INSERT INTO `users` (`id_users`, `id_rol`, `name`, `username`, `password`, `email`, `nohp`, `created_at`, `updated_at`, `last_login`) VALUES
+(1,	1,	'adits',	'admin_',	'$2b$10$qjBZA.lXLDA6k7EmresYfe3ohXR7qtYjY.rcCmiKo.JSJqWLi20/S',	'admin@admin.com',	'0822123123213',	'2023-09-11 17:34:12',	'2023-10-04 02:19:28',	'2023-10-04 00:56:33'),
+(5,	1,	'Bagas',	'admin',	'$2b$10$wPxITD.8KVEvSlBIIoczRuwFH8GkCkkdCeFjzsJgO4E0wgiaRD.OW',	'admin@gmail.com',	'083148851255',	'2023-09-14 17:38:07',	'2023-10-04 01:43:04',	NULL),
+(8,	1,	'Digdaya Rayhan Bagaskara',	'bagas',	'$2b$10$rBLSyPGq2nitPDBvd6msKObnu0O63BpAYoFOEyhYALyGPOQWXDfC2',	'bagas@gmail.com',	'083148851256',	'2023-10-04 02:24:46',	NULL,	NULL);
 SET FOREIGN_KEY_CHECKS = 1;
