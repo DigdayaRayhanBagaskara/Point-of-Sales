@@ -44,7 +44,11 @@ const Users = () => {
 
   const header = [
     {
-      name: "Nama",
+      name: "Name",
+      cell: (row) => row.name,
+    },
+    {
+      name: "Username",
       cell: (row) => row.username,
     },
     {

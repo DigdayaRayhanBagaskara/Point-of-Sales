@@ -21,13 +21,14 @@ const FormUsers = ({ cancel }) => {
   const [listRole, setListRole] = useState([])
   const [role, setRole] = useState()
   const [formData, setFormData] = useState({
-    nama: "",
+    name: "",
+    username: "",
     email: "",
     nohp: "",
     password: ""
   });
   
-  const { nama, email, nohp, password } = formData
+  const { name, username, email, nohp, password } = formData
 
   useEffect(() => {
     if (rolesList.isSuccess) {
@@ -48,13 +49,14 @@ const FormUsers = ({ cancel }) => {
 
   const onSubmit = async () => {
     try {
-      if (!nama && !email && !nohp) {
+      if (!name && !username && !email && !nohp) {
         toast.dismiss()
         toast.error("Data Harus Diisi Terlebih Dahulu");
       } else {
         createUser({
           "id_rol": role.id_rol,
-          "username": nama,
+          "name": name,
+          "username": username,
           "password": password,
           "email": email,
           "nohp": nohp
@@ -89,10 +91,16 @@ const FormUsers = ({ cancel }) => {
                   })
                 }
               </Select>
-              <Input label="Nama" type="text" value={formData.nama} onChange={(event) =>
+              <Input label="Name" type="text" value={formData.name} onChange={(event) =>
                 setFormData({
                   ...formData,
-                  nama: event.target.value,
+                  name: event.target.value,
+                })
+              } />
+              <Input label="Username" type="text" value={formData.username} onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  username: event.target.value,
                 })
               } />
               <Input label="Email" type="email" value={formData.email} onChange={(event) =>

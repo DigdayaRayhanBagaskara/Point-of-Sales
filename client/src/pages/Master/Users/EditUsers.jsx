@@ -22,13 +22,14 @@ const EditUsers = ({ cancel, data }) => {
     const [role, setRole] = useState()
     const [formData, setFormData] = useState({
         id_users: data?.id_users,
-        nama: data?.username,
+        name: data?.name,
+        username: data?.username,
         email: data?.email,
         nohp: data?.nohp,
         password: '__PASSWORD__'
     });
 
-    const { id_users, nama, email, nohp, password } = formData
+    const { id_users, name, username, email, nohp, password } = formData
 
     const [updateUser, responseUpdate] = useUpdateusersByIdMutation();
 
@@ -52,14 +53,15 @@ const EditUsers = ({ cancel, data }) => {
 
     const onSubmit = async () => {
         try {
-            if (!nama && !email && !nohp && !role) {
+            if (!name && !username && !email && !nohp && !role) {
                 toast.dismiss()
                 toast.error("Data Harus Diisi Terlebih Dahulu");
             } else {
                 await updateUser({
                     "id": id_users,
                     "id_rol": role.id_rol,
-                    "username": nama,
+                    "name": name,
+                    "username": username,
                     "password": password,
                     "email": email,
                     "nohp": nohp
@@ -94,10 +96,16 @@ const EditUsers = ({ cancel, data }) => {
                                     })
                                 }
                             </Select>
-                            <Input label="Nama" type="text" value={formData.nama} onChange={(event) =>
+                            <Input label="Name" type="text" value={formData.name} onChange={(event) =>
                                 setFormData({
                                     ...formData,
-                                    nama: event.target.value,
+                                    name: event.target.value,
+                                })
+                            } />
+                            <Input label="Username" type="text" value={formData.username} onChange={(event) =>
+                                setFormData({
+                                    ...formData,
+                                    username: event.target.value,
                                 })
                             } />
                             <Input label="Email" type="email" value={formData.email} onChange={(event) =>
